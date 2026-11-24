@@ -160,15 +160,15 @@ SyncMedic 会自动去找下面这些地方，找到多少算多少：
 
 发布流程：
 
-1. 把源码推到**公开** GitHub 仓库（官方 2026 起的规则：公开源码是常态，闭源插件暂不收录但需申报）
-2. 发一个 Release，附上 `main.js` / `manifest.json` / `styles.css`
-3. 给 [`obsidianmd/obsidian-releases`](https://github.com/obsidianmd/obsidian-releases) 提 PR，在 `community-plugins.json` 里加一行：
+1. 源码在**公开** GitHub 仓库，根目录有 `manifest.json`、`README.md`、`LICENSE` ✓
+2. 发一个 Release，**tag 与 manifest 的 version 一致**，附上 `main.js` / `manifest.json` / `styles.css` ✓
+3. 在 <https://community.obsidian.md> 用 **Obsidian 账号**登录，把 GitHub 账号关联上
+4. 把仓库 **Claim** 到自己名下 → **Plugins → New plugin** → 填仓库地址、Owner、截图路径 → 同意开发者政策 → 提交
+5. 官方自动扫描（会重建你的源码，核对 release 的 `main.js` 是否一致），有问题就改并发新版本号
 
-   ```json
-   { "id": "syncmedic", "name": "SyncMedic", "author": "你的名字", "repo": "你的账号/obsidian-syncmedic" }
-   ```
+> ⚠️ **不是**给 `obsidianmd/obsidian-releases` 提 PR —— 那个仓库的 PR 通道已被官方关闭（页面显示 `Pull request creation is restricted`）。正式入口是 **community.obsidian.md**。
 
-4. 官方会跑自动扫描，再人工审核，通过后插件出现在市场里
+完整逐步操作见 [`RELEASE.md`](./RELEASE.md)。
 
 审核常见退稿意见见 [官方 Plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines)。本插件已经对照过一遍，已处理的包括：不用全局 `app`、不打印调试日志、正则不含 lookbehind（iOS 16.4 以下安全）、不用 `innerHTML`、命令用 `callback`、资源随插件卸载自动释放、**vault 内文件走 Vault API，只有 `.obsidian/` 插件目录才用 Adapter API**（`.obsidian` 不在 vault 文件索引里，Vault API 看不到）。
 
