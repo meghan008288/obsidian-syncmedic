@@ -27,7 +27,7 @@ export const DEFAULT_SETTINGS: SyncMedicSettings = {
 };
 
 /** Kept in sync with manifest.json. */
-export const PLUGIN_VERSION = "0.1.0";
+export const PLUGIN_VERSION = "0.1.1";
 
 function asBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;

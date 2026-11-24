@@ -34,6 +34,29 @@ test("the plugin id is a valid Obsidian id", () => {
   assert.equal(id, "syncmedic", "the id must match the plugin folder name");
 });
 
+test("the display name follows the community directory naming rules", () => {
+  const name = String(manifest.name);
+  // Official rule, docs.obsidian.md/Reference/Manifest#name: Basic Latin
+  // characters only, and no punctuation except hyphens, plus signs and
+  // parentheses. The first submission was rejected over exactly this rule:
+  // the name used to be "SyncMedic - 同步急诊室".
+  assert.match(
+    name,
+    /^[A-Za-z0-9 ()+\-]+$/,
+    "name must be Basic Latin; only hyphens, plus signs and parentheses may be used as punctuation"
+  );
+  assert.doesNotMatch(
+    name,
+    /obsidian|obsi-|-sidian/i,
+    "name must not contain Obsidian or a variation of it"
+  );
+  assert.doesNotMatch(
+    name,
+    /plugin/i,
+    "a plugin name may not contain the word Plugin"
+  );
+});
+
 test("the entry we would submit to the community registry has every required field", () => {
   // Verified against obsidianmd/obsidian-releases community-plugins.json:
   // all 10844 entries carry exactly id / name / author / repo / description.

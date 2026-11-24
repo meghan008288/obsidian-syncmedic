@@ -126,12 +126,12 @@ SyncMedic 会自动去找下面这些地方，找到多少算多少：
 | 渠道 | 用户怎么装 | 需要什么 | 现在能用吗 |
 | --- | --- | --- | --- |
 | **手动安装** | 下载 zip 解压到 vault | 一个 zip | ✅ 已经可以 |
-| **GitHub Release + BRAT** | 装 BRAT，填仓库地址 | 公开 GitHub 仓库 + 一个 Release | ✅ 已经可以（Release `0.1.0`） |
+| **GitHub Release + BRAT** | 装 BRAT，填仓库地址 | 公开 GitHub 仓库 + 一个 Release | ✅ 已经可以（Release `0.1.1`） |
 | **Obsidian 官方社区插件市场** | 市场里搜 "SyncMedic"，点安装 | 公开仓库 + 提交官方审核 | ⏳ 审核中 |
 
 ### 渠道一：手动安装
 
-下载 `syncmedic-0.1.0.zip`，解压到你的 vault 里：
+下载 `syncmedic-0.1.1.zip`，解压到你的 vault 里：
 
 ```
 <你的 vault>/.obsidian/plugins/syncmedic/
@@ -188,12 +188,12 @@ npm run build
 
 ```bash
 python scripts/release.py configure --github 你的GitHub用户名   # 改作者信息
-python scripts/release.py check --tag 0.1.0                     # 发版前自检
+python scripts/release.py check --tag 0.1.1                     # 发版前自检
 python scripts/release.py package                              # 生成 dist/ 发布物料
 python scripts/release.py entry --repo 你的用户名/obsidian-syncmedic   # 生成提审行
 ```
 
-推上 `0.1.0` 这个 tag 后，GitHub Actions 会自动跑测试、构建、发 Release。
+推上 `0.1.1` 这个 tag 后，GitHub Actions 会自动跑测试、构建、发 Release。
 
 
 ---
@@ -248,7 +248,7 @@ src/
   python scripts/release.py configure --github 你的GitHub用户名
   ```
   （`authorUrl` 按官方惯例填 GitHub 用户主页地址——remotely-save、obsidian-livesync、dataview 三个真实插件都是这么填的）
-- **官方市场还没收录**：仓库和 Release 都已就绪（<https://github.com/meghan008288/obsidian-syncmedic>，Release `0.1.0`），BRAT 现在就能装；官方市场的提审与审核流程见 [`RELEASE.md`](./RELEASE.md)。
+- **官方市场还没收录**：仓库和 Release 都已就绪（<https://github.com/meghan008288/obsidian-syncmedic>，Release `0.1.1`），BRAT 现在就能装；官方市场的提审与审核流程见 [`RELEASE.md`](./RELEASE.md)。
 
 ---
 

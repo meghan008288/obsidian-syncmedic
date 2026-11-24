@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.1 — 2026-11-24
+
+### English
+
+- Renamed the plugin to **SyncMedic**. The old name carried Chinese characters and an em dash; the community directory only accepts Basic Latin names without punctuation, and rejected the first submission over it.
+- English package description, and `author` now reads `Meghan`.
+- README title is English and the distribution table matches the published release.
+- Added a unit test that pins the official display-name rules.
+
+### 中文
+
+- 插件更名为 **SyncMedic**。原名含中文和破折号，不符合官方社区目录的命名要求，首次提审被拒。
+- package.json 的描述改成英文，`author` 填 `Meghan`。
+- README 标题改成英文，分发状态表改成与实际发布情况一致。
+- 补了一条单元测试，把官方对显示名的命名规则固化成断言。
+
 ## 0.1.0 — 2026-11-24
 
 首个版本。
