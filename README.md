@@ -1,4 +1,4 @@
-# SyncMedic — 同步急诊室
+# SyncMedic
 
 给 Obsidian 的同步故障做一次**本地体检**，直接告诉你：是哪个问题、证据在哪、怎么修。
 
@@ -126,10 +126,10 @@ SyncMedic 会自动去找下面这些地方，找到多少算多少：
 | 渠道 | 用户怎么装 | 需要什么 | 现在能用吗 |
 | --- | --- | --- | --- |
 | **手动安装** | 下载 zip 解压到 vault | 一个 zip | ✅ 已经可以 |
-| **GitHub Release + BRAT** | 装 BRAT，填仓库地址 | 公开 GitHub 仓库 + 一个 Release | ⏳ 需要先建仓库 |
-| **Obsidian 官方社区插件市场** | 市场里搜 "SyncMedic"，点安装 | 公开仓库 + 提交官方审核 | ⏳ 需要先建仓库 |
+| **GitHub Release + BRAT** | 装 BRAT，填仓库地址 | 公开 GitHub 仓库 + 一个 Release | ✅ 已经可以（Release `0.1.0`） |
+| **Obsidian 官方社区插件市场** | 市场里搜 "SyncMedic"，点安装 | 公开仓库 + 提交官方审核 | ⏳ 审核中 |
 
-### 渠道一：手动安装（当前唯一开箱可用的方式）
+### 渠道一：手动安装
 
 下载 `syncmedic-0.1.0.zip`，解压到你的 vault 里：
 
@@ -203,7 +203,7 @@ python scripts/release.py entry --repo 你的用户名/obsidian-syncmedic   # �
 ```bash
 npm install
 
-npm test          # 69 个单元测试（Node 内置 test runner，无额外依赖）
+npm test          # 79 个单元测试（Node 内置 test runner，无额外依赖）
 npm run typecheck # tsc --noEmit
 npm run build     # 打包出 main.js
 node scripts/verify.ts   # 用 samples/ 里的真实日志样本跑一遍端到端
@@ -243,12 +243,12 @@ src/
 - **没有登录 / 订阅 / 支付**。付费版的收费点要放在服务端（客户端校验可以被 patch 掉），这是设计上的决定，不是遗漏。
 - **规则是静态的**，还没做"新 issue 自动变规则"的抓取器。
 - **只支持这两个插件**。其它同步插件（GitSync 等）不在范围内。
-- `manifest.json` 里的 `author` 和 `authorUrl` 现在是占位值，发布前用一条命令换成你的：
+- `manifest.json` 里的 `author` 填 `Meghan`、`authorUrl` 填 GitHub 用户主页地址（官方惯例：remotely-save、obsidian-livesync、dataview 都是这么填的）。要换成你自己的，用这条命令：
   ```bash
   python scripts/release.py configure --github 你的GitHub用户名
   ```
   （`authorUrl` 按官方惯例填 GitHub 用户主页地址——remotely-save、obsidian-livesync、dataview 三个真实插件都是这么填的）
-- **发布到市场还没做**：仓库、Release、提 PR 都是手工步骤，完整操作手册见 [`RELEASE.md`](./RELEASE.md)。
+- **官方市场还没收录**：仓库和 Release 都已就绪（<https://github.com/meghan008288/obsidian-syncmedic>，Release `0.1.0`），BRAT 现在就能装；官方市场的提审与审核流程见 [`RELEASE.md`](./RELEASE.md)。
 
 ---
 
