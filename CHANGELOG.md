@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.3 — 2026-11-24
+
+### English
+
+- The plugin is now listed in the official community directory:
+  <https://community.obsidian.md/plugins/syncmedic>. The README says so, instead
+  of "under review".
+- Release assets are now signed with a SLSA build provenance attestation, so
+  users can verify that `main.js` was built from this repository.
+
+### 中文
+
+- 插件已收录进官方社区目录：<https://community.obsidian.md/plugins/syncmedic>。README 里的状态从「审核中」改成「已上线」。
+- Release 附件现在带 SLSA build provenance 签名，用户可以验证 main.js 确实是由这个仓库构建出来的。
+
 ## 0.1.2 — 2026-11-24
 
 ### English

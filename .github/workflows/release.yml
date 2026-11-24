@@ -15,6 +15,10 @@ on:
 
 permissions:
   contents: write
+  # Required by actions/attest: id-token mints the OIDC token for Sigstore
+  # signing, attestations persists the attestation on the repository.
+  id-token: write
+  attestations: write
 
 jobs:
   release:
@@ -79,3 +83,15 @@ jobs:
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
+
+      # Runs after the release exists, so a failure here cannot break a
+      # published release. The community directory asks for these attestations:
+      # they let users verify the assets were built from this repository.
+      - name: Attest the release assets
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
+            dist/syncmedic-${{ github.event.inputs.tag || github.ref_name }}.zip
