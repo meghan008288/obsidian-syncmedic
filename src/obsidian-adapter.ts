@@ -4,28 +4,33 @@
  * The official plugin guidelines ask us to prefer the Vault API over the
  * Adapter API, because the Vault API is cached and serialises writes.
  *
- * There is one hard exception: `.obsidian/` is not part of the vault's file
- * index, so the Vault API cannot see it at all. Plugin folders such as
- * `.obsidian/plugins/obsidian-livesync/` can therefore only be reached
- * through the Adapter API. Everything else goes through the Vault API.
+ * There is one hard exception: the configuration folder is not part of the
+ * vault's file index, so the Vault API cannot see it at all. Plugin folders
+ * such as `<configDir>/plugins/obsidian-livesync/` can therefore only be
+ * reached through the Adapter API. Everything else goes through the Vault
+ * API.
+ *
+ * The configuration folder is never hard-coded: the user can rename it, so it
+ * is read from `vault.configDir` at runtime.
  */
 
 import { TFile, TFolder, type App } from "obsidian";
 
 import type { VaultAdapter } from "./logs.ts";
 
-const HIDDEN_PREFIX = ".obsidian/";
-
 export class ObsidianAdapter implements VaultAdapter {
   private readonly app: App;
+  /** Obsidian's configuration folder. The user can rename it. */
+  readonly configDir: string;
 
   constructor(app: App) {
     this.app = app;
+    this.configDir = app.vault.configDir;
   }
 
   /** Paths Obsidian keeps out of the vault index need the raw adapter. */
   private isHidden(path: string): boolean {
-    return path === ".obsidian" || path.startsWith(HIDDEN_PREFIX);
+    return path === this.configDir || path.startsWith(`${this.configDir}/`);
   }
 
   async exists(path: string): Promise<boolean> {
@@ -50,9 +55,13 @@ export class ObsidianAdapter implements VaultAdapter {
     if (this.isHidden(path)) {
       return this.app.vault.adapter.list(path);
     }
+    // getFolderByPath() only exists since Obsidian 1.5.7, which is newer than
+    // the minAppVersion we declare, so we resolve the folder ourselves.
     const folder =
-      path === "" ? this.app.vault.getRoot() : this.app.vault.getFolderByPath(path);
-    if (!folder) {
+      path === ""
+        ? this.app.vault.getRoot()
+        : this.app.vault.getAbstractFileByPath(path);
+    if (!(folder instanceof TFolder)) {
       throw new Error(`no such folder: ${path}`);
     }
     const files: string[] = [];

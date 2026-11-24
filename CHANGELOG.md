@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.2 — 2026-11-24
+
+### English
+
+- Fixed the two errors the community directory scan reported:
+  - the manifest description no longer contains the word "Obsidian"
+  - `vault.getFolderByPath()` (Obsidian 1.5.7) is replaced by `getAbstractFileByPath()`, so no API newer than the declared `minAppVersion` is used
+- The configuration folder is no longer hard-coded: it is read from `vault.configDir`, and the collector resolves the plugin folders from it
+- README is now English; the Chinese version is kept in `README.zh-CN.md`
+- Dropped the `builtin-modules` dependency in favour of `node:module`
+- Replaced the ideographic spaces in the report with plain separators
+- Added two tests: the official display-name rules, and that the configuration folder comes from the adapter
+
+### 中文
+
+- 修掉官方扫描报的两个 Error：描述里不再出现 "Obsidian"；`vault.getFolderByPath()`（Obsidian 1.5.7）换成 `getAbstractFileByPath()`，不再用超出 minAppVersion 的 API
+- 配置目录不再写死，改为读 `vault.configDir`，采集器按它解析插件目录
+- README 改成英文，中文版保留在 `README.zh-CN.md`
+- 去掉 `builtin-modules` 依赖，改用 `node:module`
+- 报告里的全角空格换成普通分隔符
+- 新增两条测试：官方显示名规则、配置目录来自 adapter
+
 ## 0.1.1 — 2026-11-24
 
 ### English

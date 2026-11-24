@@ -17,6 +17,11 @@
  */
 
 export interface VaultAdapter {
+  /**
+   * Obsidian's configuration folder. The user can rename it, so it is never
+   * hard-coded; plugin folders are resolved from this at runtime.
+   */
+  readonly configDir: string;
   exists(path: string): Promise<boolean>;
   read(path: string): Promise<string>;
   list(path: string): Promise<{ files: string[]; folders: string[] }>;
@@ -81,6 +86,13 @@ export interface CollectOptions {
 const DEFAULT_MAX_BYTES_PER_FILE = 2_000_000;
 const DEFAULT_MAX_FILES = 50;
 
+/**
+ * Placeholder for Obsidian's configuration folder inside a source root. It is
+ * replaced with `adapter.configDir` at collection time, because the user can
+ * rename that folder and we must not assume where it lives.
+ */
+export const CONFIG_DIR_TOKEN = "{configDir}";
+
 export const LOG_SOURCES: LogSourceSpec[] = [
   {
     id: "livesync-log",
@@ -95,7 +107,10 @@ export const LOG_SOURCES: LogSourceSpec[] = [
     id: "livesync-plugin-dir",
     label: "LiveSync 插件目录",
     pluginId: "obsidian-livesync",
-    roots: [".obsidian/plugins/obsidian-livesync/", ".obsidian/plugins/livesync/"],
+    roots: [
+      `${CONFIG_DIR_TOKEN}/plugins/obsidian-livesync/`,
+      `${CONFIG_DIR_TOKEN}/plugins/livesync/`,
+    ],
     prefixes: ["livesync_log_"],
     suffixes: [".log", ".txt"],
     extraFolders: ["logs/"],
@@ -120,7 +135,7 @@ export const LOG_SOURCES: LogSourceSpec[] = [
     id: "remotely-save-plugin-dir",
     label: "Remotely Save 插件目录",
     pluginId: "remotely-save",
-    roots: [".obsidian/plugins/remotely-save/"],
+    roots: [`${CONFIG_DIR_TOKEN}/plugins/remotely-save/`],
     suffixes: [".log", ".txt"],
     extraFolders: ["logs/"],
     optional: true,
@@ -163,6 +178,15 @@ function errorMessage(error: unknown): string {
   return String(error);
 }
 
+/**
+ * Replaces the configuration-folder placeholder in a source root with the
+ * folder Obsidian actually uses.
+ */
+function resolveConfigDir(root: string, configDir: string): string {
+  if (!root.startsWith(CONFIG_DIR_TOKEN)) return root;
+  return configDir + root.slice(CONFIG_DIR_TOKEN.length);
+}
+
 export async function collectLogs(
   adapter: VaultAdapter,
   options?: CollectOptions
@@ -178,7 +202,8 @@ export async function collectLogs(
   for (const source of LOG_SOURCES) {
     let found = 0;
 
-    for (const root of source.roots) {
+    for (const rawRoot of source.roots) {
+      const root = resolveConfigDir(rawRoot, adapter.configDir);
       const directories = [
         root,
         ...(source.extraFolders ?? []).map((folder) => joinPath(root, folder)),

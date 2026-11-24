@@ -1,6 +1,6 @@
 {
   "name": "syncmedic",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Local diagnostics for Obsidian sync failures. Scans your logs on your own machine, matches them against real upstream issue signatures, and tells you exactly how to fix it. Nothing leaves your machine.",
   "main": "main.js",
   "scripts": {
@@ -21,7 +21,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "builtin-modules": "^4.0.0",
     "esbuild": "^0.24.2",
     "obsidian": "^1.7.2",
     "typescript": "^5.7.2"

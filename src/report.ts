@@ -70,7 +70,7 @@ export function renderMarkdownReport(input: ReportInput): string {
   lines.push("");
   lines.push(
     `> ${renderSummary(input)}  ·  生成时间 ${safe(input.generatedAt ?? now())}  ·  插件版本 ${safe(
-      input.pluginVersion ?? "0.1.1"
+      input.pluginVersion ?? "0.1.2"
     )}`
   );
   lines.push("");
@@ -108,7 +108,7 @@ export function renderMarkdownReport(input: ReportInput): string {
       );
       lines.push("");
       lines.push(
-        `- 严重程度：${SEVERITY_LABEL[match.severity]}　分类：${safe(match.category)}　出现次数：${match.occurrences}`
+        `- 严重程度：${SEVERITY_LABEL[match.severity]} | 分类：${safe(match.category)} | 出现次数：${match.occurrences}`
       );
       lines.push(
         `- 指纹来源：${match.origin === "source" ? "插件源码中确认存在的字符串" : "用户在上游 issue 中贴出的真实输出"}`
@@ -183,7 +183,7 @@ export function renderJsonReport(input: ReportInput): string {
   const { analysis } = input;
   const payload = {
     tool: "SyncMedic",
-    pluginVersion: input.pluginVersion ?? "0.1.1",
+    pluginVersion: input.pluginVersion ?? "0.1.2",
     generatedAt: input.generatedAt ?? now(),
     vaultName: input.vaultName ? safe(input.vaultName) : undefined,
     scanned: {

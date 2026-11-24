@@ -9,6 +9,7 @@ import {
 
 /** In-memory stand-in for Obsidian's DataAdapter. */
 class FakeAdapter implements VaultAdapter {
+  configDir = ".obsidian";
   files = new Map<string, string>();
   missingFolders = new Set<string>();
   listCalls: string[] = [];
@@ -121,6 +122,20 @@ test("collects log files that live inside the plugin folders", async () => {
     result.documents.find((d) => d.path.includes("obsidian-livesync"))?.pluginId,
     "obsidian-livesync"
   );
+});
+
+test("plugin folders are resolved from the configuration folder the adapter reports", async () => {
+  const adapter = adapterWith({
+    "my-config/plugins/remotely-save/debug.log": "some error while deleting",
+  });
+  adapter.configDir = "my-config";
+  const result = await collectLogs(adapter);
+
+  assert.ok(
+    adapter.listCalls.includes("my-config/plugins/remotely-save/"),
+    "the collector must look where the adapter says, not in a hard-coded folder"
+  );
+  assert.ok(paths(result).includes("my-config/plugins/remotely-save/debug.log"));
 });
 
 test("a file matched by two sources is collected only once", async () => {

@@ -18,6 +18,7 @@ const sampleRoot = path.join(here, "..", "samples");
 
 /** Real filesystem adapter, mirroring Obsidian's DataAdapter contract. */
 class NodeFsAdapter implements VaultAdapter {
+  readonly configDir = ".obsidian";
   private readonly root: string;
 
   constructor(root: string) {
@@ -58,7 +59,7 @@ class NodeFsAdapter implements VaultAdapter {
 const adapter = new NodeFsAdapter(sampleRoot);
 const result = await runDiagnostics({
   adapter,
-  pluginVersion: "0.1.1",
+  pluginVersion: "0.1.2",
   vaultName: "sample-vault",
   generatedAt: "2026-11-24 09:20:00",
 });

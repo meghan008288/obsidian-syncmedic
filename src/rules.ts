@@ -102,7 +102,7 @@ export const RULES: RuleDefinition[] = [
     fixes: [
       "在 Remotely Save 设置里重新授权 OneDrive：先清掉旧令牌，再点 Sign in 走一遍 OAuth",
       "如果是公司 / 学校 Microsoft 账号，必须让管理员给 remotely-save 应用 admin consent，否则一定 403（issue #11 里 @fyears 的结论）",
-      "实在清不干净就直接删 .obsidian/plugins/remotely-save/data.json 里 onedrive 那段令牌字段，再重连",
+      "实在清不干净就直接删掉 Remotely Save 插件目录里 data.json 的 onedrive 令牌字段，再重连",
     ],
     issues: [
       { repo: RS, number: 11, relation: "direct" },
@@ -228,7 +228,7 @@ export const RULES: RuleDefinition[] = [
     groups: [[/trying to delete db but it was blocked/i, /\bdb deleted\b/i]],
     fixes: [
       "本地数据库被占用了。关掉 Obsidian 再同步一次",
-      "如果反复出现，检查 .obsidian/plugins/remotely-save/ 目录的写权限",
+      "如果反复出现，检查 Remotely Save 插件目录的写权限",
       "实在恢复不了可以备份后删掉该目录，让插件重建本地数据库（远端数据不受影响）",
     ],
     issues: [{ repo: RS, number: 1151, relation: "related" }],
@@ -389,7 +389,7 @@ export const RULES: RuleDefinition[] = [
       "chunk 收集在本地数据库和远端之间对不上，文件被判定为「本地有、远端没有」",
       "先在 LiveSync 设置里跑一次 Rebuild database",
       "还是不行就用 “Fix database” / “Reconstruct database” 重建一次索引",
-      "issue #505 里 .obsidian/workspace-mobile.json 这类隐藏文件最容易踩坑，可以先把隐藏文件同步关掉",
+      "issue #505 里工作区状态这类隐藏文件最容易踩坑，可以先把隐藏文件同步关掉",
     ],
     issues: [{ repo: LS, number: 505, relation: "direct" }],
   },

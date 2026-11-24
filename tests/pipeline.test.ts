@@ -6,6 +6,7 @@ import { DEFAULT_SETTINGS, normalizeSettings } from "../src/settings.ts";
 import type { VaultAdapter } from "../src/logs.ts";
 
 class FakeAdapter implements VaultAdapter {
+  readonly configDir = ".obsidian";
   files = new Map<string, string>();
   async exists(path: string): Promise<boolean> {
     return this.files.has(path);
