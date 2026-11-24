@@ -31,20 +31,22 @@ STATE = os.path.join(
 )
 API = "https://github.com"
 
-# The GitHub CLI's public OAuth client ids, read out of gh.exe.
+# The GitHub CLI's OAuth app, taken from cli/cli internal/authflow/flow.go:
 #
-#   Iv1.e7b89e013f801f03  -> the CLI's *GitHub App*. Issues a `ghu_` token.
-#                            A GitHub App token can only WRITE to repositories
-#                            the app is installed on, so it cannot push to a
-#                            freshly created repo and cannot create one
-#                            ("Resource not accessible by integration").
-#   Iv1.b231c327f1eaa229  -> the CLI's *OAuth App*. Issues a `gho_` token with
-#                            the `repo` scope, which can do all of that.
+#   oauthClientID = "178c6fc778ccc68e1d6a"   // the "GitHub CLI" OAuth app
 #
-# The OAuth App is therefore tried first; the App is only a fallback.
+# It issues a `gho_` token with the `repo` scope, which is what a GitHub App
+# token cannot do: an App token can only WRITE to repositories the app is
+# installed on, so it cannot create a repository or push to a fresh one
+# ("Resource not accessible by integration").
+#
+# Do NOT use an `Iv1.*` id here. The ones embedded in gh.exe belong to other
+# apps: Iv1.b231c327f1eaa229 resolves to "Visual Studio Tunnel Service -
+# Test" on github.com/login/oauth/authorize, and Iv1.e7b89e013f801f03
+# redirects to global.rel.tunnels.api.visualstudio.com. Authorizing either
+# one hands a third-party app access to the account instead of the CLI.
 CANDIDATE_CLIENT_IDS = [
-    "Iv1.b231c327f1eaa229",
-    "Iv1.e7b89e013f801f03",
+    "178c6fc778ccc68e1d6a",
 ]
 
 GH_EXE = os.path.join(
