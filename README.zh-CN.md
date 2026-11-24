@@ -127,7 +127,7 @@ SyncMedic 会自动去找下面这些地方，找到多少算多少：
 | --- | --- | --- | --- |
 | **手动安装** | 下载 zip 解压到 vault | 一个 zip | ✅ 已经可以 |
 | **GitHub Release + BRAT** | 装 BRAT，填仓库地址 | 公开 GitHub 仓库 + 一个 Release | ✅ 已经可以（Release `0.1.2`） |
-| **Obsidian 官方社区插件市场** | 市场里搜 "SyncMedic"，点安装 | 公开仓库 + 提交官方审核 | ⏳ 审核中 |
+| **Obsidian 官方社区插件市场** | 市场里搜 "SyncMedic"，点安装 | 公开仓库 + 提交官方审核 | ✅ 已上线（<https://community.obsidian.md/plugins/syncmedic>） |
 
 ### 渠道一：手动安装
 
@@ -248,7 +248,7 @@ src/
   python scripts/release.py configure --github 你的GitHub用户名
   ```
   （`authorUrl` 按官方惯例填 GitHub 用户主页地址——remotely-save、obsidian-livesync、dataview 三个真实插件都是这么填的）
-- **官方市场还没收录**：仓库和 Release 都已就绪（<https://github.com/meghan008288/obsidian-syncmedic>，Release `0.1.2`），BRAT 现在就能装；官方市场的提审与审核流程见 [`RELEASE.md`](./RELEASE.md)。
+- **官方市场页面还没有截图**：插件已经上线（<https://community.obsidian.md/plugins/syncmedic>），一键就能装；只是列表页缺真实截图，需要在 Obsidian 里截。
 
 ---
 

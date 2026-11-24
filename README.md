@@ -137,7 +137,7 @@ The plugin ships through three channels, in increasing order of convenience:
 | --- | --- | --- | --- |
 | **Manual** | Download the zip and unpack it into the vault | One zip | ✅ Ready |
 | **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.2`) |
-| **Official community directory** | Search "SyncMedic" in the directory and hit install | A public repository + an approved listing | ⏳ Under review |
+| **Official community directory** | Search "SyncMedic" in the directory and hit install | A public repository + an approved listing | ✅ Live (<https://community.obsidian.md/plugins/syncmedic>) |
 
 ### Channel 1: manual install
 
@@ -281,11 +281,10 @@ Stating it is more useful than overselling:
   rules yet.
 - **Only those two plugins are supported.** Other sync plugins (GitSync and
   friends) are out of scope.
-- **The official directory listing is still in review.** The repository and
-  the release are ready
-  (<https://github.com/meghan008288/obsidian-syncmedic>, release `0.1.2`), so
-  BRAT works today; the submission and review flow is in
-  [`RELEASE.md`](./RELEASE.md).
+- **The official directory listing has no screenshots yet.** The plugin is live at
+  <https://community.obsidian.md/plugins/syncmedic> and installs with one click;
+  the listing page still needs real screenshots, which have to be taken inside
+  Obsidian.
 
 ---
 
