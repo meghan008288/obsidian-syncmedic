@@ -168,7 +168,8 @@ SyncMedic 会自动去找下面这些地方，找到多少算多少：
 
 > ⚠️ **不是**给 `obsidianmd/obsidian-releases` 提 PR —— 那个仓库的 PR 通道已被官方关闭（页面显示 `Pull request creation is restricted`）。正式入口是 **community.obsidian.md**。
 
-完整逐步操作见 [`RELEASE.md`](./RELEASE.md)。
+完整逐步操作见 [`RELEASE.md`](./RELEASE.md)，提交表单的每个字段已经预填在
+[`SUBMIT.md`](./SUBMIT.md) 里。
 
 审核常见退稿意见见 [官方 Plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines)。本插件已经对照过一遍，已处理的包括：不用全局 `app`、不打印调试日志、正则不含 lookbehind（iOS 16.4 以下安全）、不用 `innerHTML`、命令用 `callback`、资源随插件卸载自动释放、**vault 内文件走 Vault API，只有 `.obsidian/` 插件目录才用 Adapter API**（`.obsidian` 不在 vault 文件索引里，Vault API 看不到）。
 
