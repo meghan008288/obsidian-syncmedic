@@ -1,0 +1,9 @@
+node_modules/
+main.js
+main.js.map
+dist/
+*.tgz
+.DS_Store
+data.json
+# Local state of the GitHub device-code login helper.
+.gh-device-state.json

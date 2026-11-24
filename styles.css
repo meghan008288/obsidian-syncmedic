@@ -1,0 +1,79 @@
+/* SyncMedic — 同步急诊室 */
+
+.syncmedic-report .modal-content {
+  max-width: 900px;
+  height: 80vh;
+}
+
+.syncmedic-report-header h3 {
+  margin-bottom: 0.25em;
+}
+
+.syncmedic-report-summary {
+  color: var(--text-muted);
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+.syncmedic-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-bottom: 1em;
+}
+
+.syncmedic-report-body {
+  overflow-y: auto;
+  max-height: 55vh;
+  border-top: 1px solid var(--background-modifier-border);
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 0.5em 0;
+}
+
+.syncmedic-report-body h1 {
+  font-size: 1.4em;
+}
+
+.syncmedic-report-body h2 {
+  font-size: 1.2em;
+  margin-top: 1.2em;
+}
+
+.syncmedic-report-body h3 {
+  font-size: 1.05em;
+  margin-top: 1em;
+}
+
+.syncmedic-report-body pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.syncmedic-report-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1em;
+}
+
+.syncmedic-paste .modal-content {
+  max-width: 800px;
+}
+
+.syncmedic-hint {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.syncmedic-paste-input {
+  width: 100%;
+  min-height: 220px;
+  font-family: var(--font-monospace);
+  font-size: 0.85em;
+  resize: vertical;
+}
+
+.syncmedic-paste-actions {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 1em;
+}

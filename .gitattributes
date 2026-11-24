@@ -1,0 +1,12 @@
+# Keep line endings stable across Windows and macOS/Linux contributors.
+# Source and config files stay LF; the release assets are generated anyway.
+* text=auto eol=lf
+
+*.ts text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.css text eol=lf
+*.py text eol=lf
+.gitignore text eol=lf

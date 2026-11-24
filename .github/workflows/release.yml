@@ -1,0 +1,81 @@
+name: Release
+
+# Triggered by pushing a tag that is EXACTLY the version string, e.g. "0.1.0".
+# No "v" prefix: Obsidian requires the release tag, the release name and the
+# version inside the released manifest.json to be identical.
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "版本号，例如 0.1.0（不要加 v 前缀）"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify the tag matches the manifest version
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          MANIFEST_VERSION=$(node -p "require('./manifest.json').version")
+          if [ "$TAG" != "$MANIFEST_VERSION" ]; then
+            echo "::error::tag '$TAG' != manifest version '$MANIFEST_VERSION'"
+            echo "Obsidian requires tag == release name == manifest version."
+            exit 1
+          fi
+          echo "tag $TAG matches manifest version $MANIFEST_VERSION"
+
+      - name: Package release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          mkdir -p dist
+          # BRAT fetches these by exact file name.
+          cp main.js manifest.json styles.css dist/
+          zip -j "dist/syncmedic-${TAG}.zip" dist/main.js dist/manifest.json dist/styles.css
+          ls -la dist/
+
+      - name: Publish the GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
+            dist/syncmedic-${{ github.event.inputs.tag || github.ref_name }}.zip
+          # The release name must equal the tag and the manifest version.
+          name: ${{ github.event.inputs.tag || github.ref_name }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false

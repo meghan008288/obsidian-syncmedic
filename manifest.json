@@ -1,0 +1,10 @@
+{
+	"id": "syncmedic",
+	"name": "SyncMedic — 同步急诊室",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "本地诊断 Obsidian 同步故障（Remotely Save / Self-hosted LiveSync），给出证据、原因和修复步骤。日志只在本机解析，不上传。",
+	"author": "meghan008288",
+	"authorUrl": "https://github.com/meghan008288",
+	"isDesktopOnly": false
+}

@@ -1,0 +1,29 @@
+{
+  "name": "syncmedic",
+  "version": "0.1.0",
+  "description": "SyncMedic — 同步急诊室：给 Obsidian 同步故障做本地体检，命中真实 issue 指纹并给出可执行修复步骤。",
+  "main": "main.js",
+  "scripts": {
+    "build": "node esbuild.config.mjs production",
+    "dev": "node esbuild.config.mjs",
+    "test": "node --test tests/",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "sync",
+    "remotely-save",
+    "livesync",
+    "diagnostics"
+  ],
+  "author": "SyncMedic",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "builtin-modules": "^4.0.0",
+    "esbuild": "^0.24.2",
+    "obsidian": "^1.7.2",
+    "typescript": "^5.7.2"
+  }
+}

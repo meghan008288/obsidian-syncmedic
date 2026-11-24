@@ -1,0 +1,54 @@
+---
+name: 同步故障报告
+about: 用 SyncMedic 生成的报告来提同步问题，能被直接复现和定位
+title: "[同步] "
+labels: sync
+body:
+  - type: markdown
+    attributes:
+      value: |
+        贴 SyncMedic 报告之前，先看下面两件事，能省掉一轮来回。
+
+  - type: input
+    id: plugin
+    attributes:
+      label: 哪个插件出的问题
+      placeholder: Remotely Save / Self-hosted LiveSync
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 插件版本
+      placeholder: 例：Remotely Save 0.5.25 / LiveSync 0.24.25
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: 系统与设备
+      placeholder: 例：Windows 11 / macOS 15 / Android 14 手机
+    validations:
+      required: true
+
+  - type: textarea
+    id: report
+    attributes:
+      label: SyncMedic 报告
+      description: 在 Obsidian 里运行「SyncMedic: 运行同步体检」，点「复制报告」直接粘到这里。报告已经脱敏，可以公开。
+      placeholder: |
+        # SyncMedic 同步体检报告
+        > ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 补充说明
+      description: 什么时候开始出问题的？重试有用吗？之前有没有改过什么设置？
+      render: textarea
+    validations:
+      required: false
