@@ -6,6 +6,27 @@
 
 ---
 
+## English summary
+
+**SyncMedic** runs a local health check on your Obsidian sync setup. It collects
+your sync logs from the vault, matches them against **22 failure signatures
+that were taken from real upstream issues and from the plugins' own source
+code**, and tells you what went wrong and exactly how to fix it.
+
+- **Supports Remotely Save and Self-hosted LiveSync.**
+- **Nothing leaves your machine.** Logs are parsed locally; there is no network
+  call in the plugin.
+- **Safe to paste.** Tokens, passwords, e-mails and local paths are redacted
+  before the report is rendered, so you can paste the report straight into a
+  public GitHub issue.
+- **The report is the fix.** Every finding links back to the upstream issue
+  where the same failure was reported, and lists the concrete steps to
+  resolve it.
+
+The rest of this document is in Chinese.
+
+---
+
 ## 这是干什么的
 
 同步出问题时，Obsidian 控制台里全是这种话：
