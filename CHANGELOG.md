@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.4 - 2026-11-25
+
+### English
+
+- The whole plugin UI is now English: the commands, the ribbon tooltip, the notices, the settings tab, the report, the log source labels, and all 22 rule titles and fix steps. The failure fingerprints themselves are untouched, so detection behaves exactly as before.
+- Rule titles were shortened so the one-line summary stays readable.
+
+### 中文
+
+- 插件界面全面改成英文:命令、侧栏图标提示、通知、设置页、报告、日志来源标签,以及 22 条规则的标题与修复步骤。匹配用的指纹一个字都没改,检测行为和之前完全一致。
+- 规则标题压短了,一行摘要更好读。
+
 ## 0.1.3 — 2026-11-24
 
 ### English

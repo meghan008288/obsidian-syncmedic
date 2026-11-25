@@ -31,7 +31,7 @@ export class SyncMedicReportModal extends Modal {
     contentEl.addClass("syncmedic-report");
 
     const header = contentEl.createDiv({ cls: "syncmedic-report-header" });
-    header.createEl("h3", { text: "SyncMedic 同步体检报告" });
+    header.createEl("h3", { text: "SyncMedic health check report" });
     header.createEl("p", {
       cls: "syncmedic-report-summary",
       text: this.result.summary,
@@ -40,26 +40,26 @@ export class SyncMedicReportModal extends Modal {
     const actions = contentEl.createDiv({ cls: "syncmedic-report-actions" });
 
     const copyButton = actions.createEl("button", {
-      text: "复制报告（可直接贴到 issue）",
+      text: "Copy report (paste-ready for an issue)",
       cls: "mod-cta",
     });
     copyButton.addEventListener("click", () => {
       void navigator.clipboard.writeText(this.result.markdown).then(
-        () => new Notice("报告已复制到剪贴板"),
-        () => new Notice("复制失败，请手动选择文本复制")
+        () => new Notice("Report copied to the clipboard"),
+        () => new Notice("Copy failed, please select the text and copy it manually")
       );
     });
 
-    const exportButton = actions.createEl("button", { text: "导出为笔记" });
+    const exportButton = actions.createEl("button", { text: "Export as note" });
     exportButton.addEventListener("click", () => {
       void this.plugin.exportReport(this.result);
     });
 
-    const jsonButton = actions.createEl("button", { text: "复制 JSON" });
+    const jsonButton = actions.createEl("button", { text: "Copy JSON" });
     jsonButton.addEventListener("click", () => {
       void navigator.clipboard.writeText(this.result.json).then(
-        () => new Notice("JSON 已复制到剪贴板"),
-        () => new Notice("复制失败，请手动选择文本复制")
+        () => new Notice("JSON copied to the clipboard"),
+        () => new Notice("Copy failed, please select the text and copy it manually")
       );
     });
 
@@ -73,7 +73,7 @@ export class SyncMedicReportModal extends Modal {
     );
 
     const footer = contentEl.createDiv({ cls: "syncmedic-report-footer" });
-    footer.createEl("button", { text: "关闭", cls: "mod-cta" }).addEventListener(
+    footer.createEl("button", { text: "Close", cls: "mod-cta" }).addEventListener(
       "click",
       () => this.close()
     );
@@ -101,12 +101,12 @@ export class SyncMedicPasteModal extends Modal {
     contentEl.empty();
     contentEl.addClass("syncmedic-paste");
 
-    contentEl.createEl("h3", { text: "粘贴控制台日志" });
+    contentEl.createEl("h3", { text: "Paste console log" });
     contentEl.createEl("p", {
       cls: "syncmedic-hint",
       text:
-        "在 Obsidian 里按 Ctrl+Shift+I（macOS 是 Cmd+Option+I）打开开发者控制台，" +
-        "把和同步故障相关的输出整段选中复制，粘贴到下面。内容只在本机解析，粘贴前会自动脱敏。",
+        "Press Ctrl+Shift+I (Cmd+Option+I on macOS) in Obsidian to open the developer console, " +
+        "select the output related to the sync failure, copy it, and paste it below. The content is parsed locally only, and it is redacted before anything else happens.",
     });
 
     const textarea = contentEl.createEl("textarea", {
@@ -121,13 +121,13 @@ export class SyncMedicPasteModal extends Modal {
 
     const actions = contentEl.createDiv({ cls: "syncmedic-paste-actions" });
     actions
-      .createEl("button", { text: "开始体检", cls: "mod-cta" })
+      .createEl("button", { text: "Run health check", cls: "mod-cta" })
       .addEventListener("click", () => {
         const pasted = this.value;
         this.close();
         void this.plugin.runScan(pasted);
       });
-    actions.createEl("button", { text: "取消" }).addEventListener("click", () => {
+    actions.createEl("button", { text: "Cancel" }).addEventListener("click", () => {
       this.close();
     });
   }
@@ -151,8 +151,8 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
-      .setName("启动时自动体检")
-      .setDesc("插件加载时自动扫描一次日志并弹出报告。")
+      .setName("Run a health check on startup")
+      .setDesc("Scan the logs once when the plugin loads and open the report.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.scanOnStartup)
@@ -163,8 +163,8 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("报告里显示证据行")
-      .setDesc("关闭后报告只给结论和修复步骤，不显示具体日志行。")
+      .setName("Show evidence lines in the report")
+      .setDesc("When off, the report only gives the conclusion and the fix steps, without the actual log lines.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.includeEvidence)
@@ -175,8 +175,8 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("单个日志文件最多读取")
-      .setDesc("单位：字符。超过这个长度的日志会被截断。")
+      .setName("Maximum characters read per log file")
+      .setDesc("Unit: characters. Logs longer than this are truncated.")
       .addText((text) =>
         text
           .setValue(String(this.plugin.settings.maxBytesPerFile))
@@ -190,8 +190,8 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("最多采集文件数")
-      .setDesc("一次体检最多读取多少个日志文件。")
+      .setName("Maximum number of files collected")
+      .setDesc("How many log files one health check may read.")
       .addText((text) =>
         text
           .setValue(String(this.plugin.settings.maxFiles))
@@ -205,8 +205,8 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("托管修复服务地址")
-      .setDesc("付费版「一键托管修复」调用的服务端地址。")
+      .setName("Hosted fix service URL")
+      .setDesc("The server the paid “one-click hosted fix” calls.")
       .addText((text) =>
         text
           .setValue(this.plugin.settings.serviceUrl)
@@ -217,12 +217,12 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("插件版本")
-      .setDesc(`当前版本 ${PLUGIN_VERSION}`)
+      .setName("Plugin version")
+      .setDesc(`Current version ${PLUGIN_VERSION}`)
       .addButton((button) =>
-        button.setButtonText("保存设置").onClick(async () => {
+        button.setButtonText("Save settings").onClick(async () => {
           await this.plugin.saveSettings();
-          new Notice("SyncMedic 设置已保存");
+          new Notice("SyncMedic settings saved");
         })
       );
   }

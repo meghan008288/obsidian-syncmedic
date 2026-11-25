@@ -32,6 +32,6 @@ mock-up that does not match what the plugin actually renders comes back as an
    `BRAT: Plugins: Add a beta plugin for testing`.
 3. Copy the files from `samples/` into the vault so the scan has something
    real to read.
-4. Run `SyncMedic: 运行同步体检`.
+4. Run `SyncMedic: Run health check`.
 5. `Ctrl+Shift+I` opens the Obsidian developer console; switch it out of the
    way before capturing.

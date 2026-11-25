@@ -22,7 +22,7 @@ test("the markdown report names every matched rule", () => {
   const analysis = analyzeDocuments([DOC]);
   const md = renderMarkdownReport({ analysis });
 
-  assert.ok(md.includes("OneDrive 授权被拒"), "rule title must appear");
+  assert.ok(md.includes("OneDrive authorization refused"), "rule title must appear");
   assert.ok(md.includes("RS-01"), "rule id must appear");
 });
 
@@ -38,7 +38,7 @@ test("the markdown report lists the fix steps and the upstream issue links", () 
   const analysis = analyzeDocuments([DOC]);
   const md = renderMarkdownReport({ analysis });
 
-  assert.ok(md.includes("重新授权 OneDrive"), "fix steps must appear");
+  assert.ok(md.includes("Re-authorize OneDrive"), "fix steps must appear");
   assert.match(
     md,
     /https:\/\/github\.com\/remotely-save\/remotely-save\/issues\/11/,
@@ -63,7 +63,7 @@ test("the markdown report says so when nothing matched", () => {
   ]);
   const md = renderMarkdownReport({ analysis });
 
-  assert.ok(md.includes("没有命中"), "an empty result must be stated plainly");
+  assert.ok(md.includes("No known failure signature"), "an empty result must be stated plainly");
   assert.ok(md.includes("2"), "the scanned line count must be reported");
 });
 
@@ -77,16 +77,16 @@ test("the markdown report lists the sources that were searched but came up empty
       sources: [
         {
           id: "livesync-log",
-          label: "LiveSync 日志文件",
+          label: "LiveSync log file",
           pluginId: "obsidian-livesync",
           found: 0,
-          hint: "去设置里打开 Write logs into the file",
+          hint: "Turn on Write logs into the file in the settings",
         },
       ],
     },
   });
 
-  assert.ok(md.includes("LiveSync 日志文件"));
+  assert.ok(md.includes("LiveSync log file"));
   assert.ok(md.includes("Write logs into the file"), "the hint must be actionable");
 });
 
@@ -97,7 +97,7 @@ test("the markdown report surfaces collection errors", () => {
     collection: {
       documents: [],
       sources: [],
-      errors: ["读不到目录 _debug_remotely_save/（ENOENT）"],
+      errors: ["cannot read the directory _debug_remotely_save/ (ENOENT)"],
     },
   });
 
@@ -109,7 +109,7 @@ test("the summary is one line that states the worst severity", () => {
   const summary = renderSummary({ analysis });
 
   assert.ok(summary.length < 120, "the summary must stay short");
-  assert.ok(summary.includes("严重"), "a critical finding must be called out");
+  assert.ok(/critical/i.test(summary), "a critical finding must be called out");
   assert.ok(summary.includes("RS-01"));
 });
 
@@ -119,8 +119,8 @@ test("the summary reports a clean run without alarming the user", () => {
   ]);
   const summary = renderSummary({ analysis });
 
-  assert.ok(summary.includes("没有命中"));
-  assert.ok(!summary.includes("严重"));
+  assert.ok(summary.includes("no known failure signature"));
+  assert.ok(!/critical/i.test(summary));
 });
 
 test("the json report is valid json and carries the matches and the fixes", () => {

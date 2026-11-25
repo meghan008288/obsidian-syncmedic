@@ -24,9 +24,9 @@ export interface ReportInput {
 }
 
 const SEVERITY_LABEL: Record<Severity, string> = {
-  critical: "严重",
-  warning: "警告",
-  info: "提示",
+  critical: "Critical",
+  warning: "Warning",
+  info: "Hint",
 };
 
 const SEVERITY_ICON: Record<Severity, string> = {
@@ -51,53 +51,53 @@ export function renderSummary(input: ReportInput): string {
   const { matches } = input.analysis;
   if (matches.length === 0) {
     const scanned = input.analysis.scannedLines;
-    return `SyncMedic 体检完成：没有命中已知故障指纹（扫了 ${scanned} 行）。`;
+    return `SyncMedic check complete: no known failure signature matched (${scanned} lines scanned).`;
   }
   const critical = matches.filter((m) => m.severity === "critical");
   const first = matches[0];
   const head =
     critical.length > 0
-      ? `发现 ${critical.length} 个严重问题`
-      : `发现 ${matches.length} 个问题`;
-  return `SyncMedic 体检：${head}，最优先的是 ${first.ruleId}「${first.title}」。`;
+      ? `${critical.length} critical ${critical.length === 1 ? "problem" : "problems"} found`
+      : `${matches.length} ${matches.length === 1 ? "problem" : "problems"} found`;
+  return `SyncMedic: ${head}. Top priority: ${first.ruleId} "${first.title}".`;
 }
 
 export function renderMarkdownReport(input: ReportInput): string {
   const { analysis, collection, redactions } = input;
   const lines: string[] = [];
 
-  lines.push("# SyncMedic 同步体检报告");
+  lines.push("# SyncMedic health check report");
   lines.push("");
   lines.push(
-    `> ${renderSummary(input)}  ·  生成时间 ${safe(input.generatedAt ?? now())}  ·  插件版本 ${safe(
-      input.pluginVersion ?? "0.1.3"
+    `> ${renderSummary(input)}  ·  Generated ${safe(input.generatedAt ?? now())}  ·  Plugin version ${safe(
+      input.pluginVersion ?? "0.1.4"
     )}`
   );
   lines.push("");
   if (input.vaultName) {
-    lines.push(`- Vault：${safe(input.vaultName)}`);
+    lines.push(`- Vault: ${safe(input.vaultName)}`);
   }
   lines.push(
-    `- 扫描：${analysis.scannedDocuments} 个文件 / ${analysis.scannedLines} 行，命中 ${analysis.matchedDocuments} 个文件`
+    `- Scanned: ${analysis.scannedDocuments} files / ${analysis.scannedLines} lines, ${analysis.matchedDocuments} files matched`
   );
   if (redactions) {
     const detail =
       redactions.hits.length > 0
-        ? `（${redactions.hits.map((h) => `${h.category}×${h.count}`).join("、")}）`
+        ? ` (${redactions.hits.map((h) => `${h.category}×${h.count}`).join(", ")})`
         : "";
-    lines.push(`- 已脱敏：${redactions.total} 处${detail}`);
+    lines.push(`- Redacted: ${redactions.total} value(s)${detail}`);
   }
   lines.push("");
 
-  lines.push("## 命中的问题");
+  lines.push("## Findings");
   lines.push("");
 
   if (analysis.matches.length === 0) {
     lines.push(
-      `没有命中已知故障指纹。本次扫了 ${analysis.scannedLines} 行日志，${
+      `No known failure signature matched. This scan covered ${analysis.scannedLines} log lines, ${
         analysis.scannedDocuments > 0
-          ? "这些内容里没有 22 条规则中的任何一条。"
-          : "但没有采集到任何日志文件，所以这句话只能说明「没看到问题」，不能说明「没有问题」。"
+          ? "and none of the 22 rules matched that content."
+          : "but no log files were collected, so this only means 'no problem seen', not 'no problem there'."
       }`
     );
     lines.push("");
@@ -108,14 +108,14 @@ export function renderMarkdownReport(input: ReportInput): string {
       );
       lines.push("");
       lines.push(
-        `- 严重程度：${SEVERITY_LABEL[match.severity]} | 分类：${safe(match.category)} | 出现次数：${match.occurrences}`
+        `- Severity: ${SEVERITY_LABEL[match.severity]} | Category: ${safe(match.category)} | Occurrences: ${match.occurrences}`
       );
       lines.push(
-        `- 指纹来源：${match.origin === "source" ? "插件源码中确认存在的字符串" : "用户在上游 issue 中贴出的真实输出"}`
+        `- Signature source: ${match.origin === "source" ? "a string confirmed in the plugin source" : "real output a user pasted into an upstream issue"}`
       );
       if (match.evidence.length > 0) {
         lines.push("");
-        lines.push("证据：");
+        lines.push("Evidence:");
         lines.push("");
         lines.push("```");
         for (const evidence of match.evidence) {
@@ -124,7 +124,7 @@ export function renderMarkdownReport(input: ReportInput): string {
         lines.push("```");
       }
       lines.push("");
-      lines.push("怎么修：");
+      lines.push("How to fix:");
       lines.push("");
       for (const fix of match.fixes) {
         lines.push(`1. ${safe(fix)}`);
@@ -134,10 +134,10 @@ export function renderMarkdownReport(input: ReportInput): string {
         const links = match.issues
           .map(
             (issue) =>
-              `- ${issue.repo}#${issue.number}（${issue.relation === "direct" ? "直接证据" : "相关讨论"}）：${issue.url}`
+              `- ${issue.repo}#${issue.number} (${issue.relation === "direct" ? "direct evidence" : "related discussion"}): ${issue.url}`
           )
           .join("\n");
-        lines.push("上游 issue：");
+        lines.push("Upstream issues:");
         lines.push("");
         lines.push(links);
         lines.push("");
@@ -148,9 +148,9 @@ export function renderMarkdownReport(input: ReportInput): string {
   if (collection) {
     const empty = collection.sources.filter((s) => s.found === 0);
     if (empty.length > 0) {
-      lines.push("## 没采到日志的来源");
+      lines.push("## Sources that produced no logs");
       lines.push("");
-      lines.push("| 来源 | 怎么才能采到 |");
+      lines.push("| Source | How to collect it |");
       lines.push("| --- | --- |");
       for (const source of empty) {
         lines.push(
@@ -161,7 +161,7 @@ export function renderMarkdownReport(input: ReportInput): string {
     }
 
     if (collection.errors.length > 0) {
-      lines.push("## 采集过程中的问题");
+      lines.push("## Problems during collection");
       lines.push("");
       for (const error of collection.errors) {
         lines.push(`- ${safe(error)}`);
@@ -173,7 +173,7 @@ export function renderMarkdownReport(input: ReportInput): string {
   lines.push("---");
   lines.push("");
   lines.push(
-    "本报告由 SyncMedic 在本机生成，所有日志内容均已脱敏，可以直接粘贴到公开 issue。"
+    "This report was generated locally by SyncMedic. All log content has been redacted, so it is safe to paste into a public issue."
   );
 
   return lines.join("\n");
@@ -183,7 +183,7 @@ export function renderJsonReport(input: ReportInput): string {
   const { analysis } = input;
   const payload = {
     tool: "SyncMedic",
-    pluginVersion: input.pluginVersion ?? "0.1.3",
+    pluginVersion: input.pluginVersion ?? "0.1.4",
     generatedAt: input.generatedAt ?? now(),
     vaultName: input.vaultName ? safe(input.vaultName) : undefined,
     scanned: {

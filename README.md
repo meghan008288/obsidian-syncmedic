@@ -65,9 +65,9 @@ SyncMedic looks in these places on its own, and takes whatever it finds:
 
 **Step 2: run the check**
 
-- Command palette → `SyncMedic: 运行同步体检`
+- Command palette → `SyncMedic: Run health check`
 - Or click the stethoscope icon in the ribbon
-- If nothing was found → `SyncMedic: 粘贴控制台日志并体检`, then paste the
+- If nothing was found → `SyncMedic: Paste console log and check`, then paste the
   relevant console output in one go
 
 **Step 3: take the report**
@@ -136,12 +136,12 @@ The plugin ships through three channels, in increasing order of convenience:
 | Channel | How a user installs it | What it needs | Available now |
 | --- | --- | --- | --- |
 | **Manual** | Download the zip and unpack it into the vault | One zip | ✅ Ready |
-| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.3`) |
+| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.4`) |
 | **Official community directory** | Search "SyncMedic" in the directory and hit install | A public repository + an approved listing | ✅ Live (<https://community.obsidian.md/plugins/syncmedic>) |
 
 ### Channel 1: manual install
 
-Download `syncmedic-0.1.3.zip` and unpack it into your vault:
+Download `syncmedic-0.1.4.zip` and unpack it into your vault:
 
 ```
 <your vault>/.obsidian/plugins/syncmedic/
@@ -213,12 +213,12 @@ The full manual is in [`RELEASE.md`](./RELEASE.md). The shortest path:
 
 ```bash
 python scripts/release.py configure --github your-github-username  # set the author info
-python scripts/release.py check --tag 0.1.3                        # pre-release checks
+python scripts/release.py check --tag 0.1.4                        # pre-release checks
 python scripts/release.py package                                  # build dist/
 python scripts/release.py entry --repo your-username/obsidian-syncmedic  # the listing line
 ```
 
-Once the `0.1.3` tag is pushed, GitHub Actions runs the tests, builds and
+Once the `0.1.4` tag is pushed, GitHub Actions runs the tests, builds and
 publishes the release by itself.
 
 ---

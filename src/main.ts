@@ -22,13 +22,13 @@ export default class SyncMedicPlugin extends Plugin {
   async onload(): Promise<void> {
     await this.loadSettings();
 
-    this.addRibbonIcon("stethoscope", "SyncMedic 同步体检", () => {
+    this.addRibbonIcon("stethoscope", "SyncMedic health check", () => {
       void this.runScan();
     });
 
     this.addCommand({
       id: "run-scan",
-      name: "运行同步体检",
+      name: "Run health check",
       callback: () => {
         void this.runScan();
       },
@@ -36,7 +36,7 @@ export default class SyncMedicPlugin extends Plugin {
 
     this.addCommand({
       id: "paste-console",
-      name: "粘贴控制台日志并体检",
+      name: "Paste console log and check",
       callback: () => {
         new SyncMedicPasteModal(this.app, this).open();
       },
@@ -44,10 +44,10 @@ export default class SyncMedicPlugin extends Plugin {
 
     this.addCommand({
       id: "export-report",
-      name: "把上次报告导出到 vault",
+      name: "Export the last report to the vault",
       callback: () => {
         if (!this.lastResult) {
-          new Notice("还没有报告，先跑一次同步体检");
+          new Notice("No report yet. Run a health check first.");
           return;
         }
         void this.exportReport(this.lastResult);
@@ -73,7 +73,7 @@ export default class SyncMedicPlugin extends Plugin {
   }
 
   async runScan(pasted?: string, silent = false): Promise<void> {
-    const notice = silent ? null : new Notice("SyncMedic 正在体检…", 0);
+    const notice = silent ? null : new Notice("SyncMedic is checking…", 0);
     try {
       const result = await runDiagnostics({
         adapter: new ObsidianAdapter(this.app),
@@ -91,7 +91,7 @@ export default class SyncMedicPlugin extends Plugin {
       new SyncMedicReportModal(this.app, this, result).open();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      new Notice(`SyncMedic 出错了：${message}`, 8000);
+      new Notice(`SyncMedic failed: ${message}`, 8000);
     } finally {
       notice?.hide();
     }
@@ -99,13 +99,13 @@ export default class SyncMedicPlugin extends Plugin {
 
   async exportReport(result: RunOutput): Promise<void> {
     const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-    const path = `SyncMedic 报告 ${stamp}.md`;
+    const path = `SyncMedic report ${stamp}.md`;
     try {
       await this.app.vault.create(path, result.markdown);
-      new Notice(`报告已导出：${path}`);
+      new Notice(`Report exported: ${path}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      new Notice(`导出失败：${message}`, 8000);
+      new Notice(`Export failed: ${message}`, 8000);
     }
   }
 }

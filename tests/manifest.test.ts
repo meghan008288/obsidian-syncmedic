@@ -39,7 +39,7 @@ test("the display name follows the community directory naming rules", () => {
   // Official rule, docs.obsidian.md/Reference/Manifest#name: Basic Latin
   // characters only, and no punctuation except hyphens, plus signs and
   // parentheses. The first submission was rejected over exactly this rule:
-  // the name used to be "SyncMedic - 同步急诊室".
+  // the name used to contain Chinese characters and an em dash.
   assert.match(
     name,
     /^[A-Za-z0-9 ()+\-]+$/,
@@ -121,6 +121,6 @@ test("the description says what the plugin does and that nothing leaves the mach
   // description has to state that the plugin does not phone home.
   assert.match(
     description,
-    /本机|不上传|own machine|nothing leaves|never leaves|local/i
+    /own machine|nothing leaves|never leaves|local/i
   );
 });

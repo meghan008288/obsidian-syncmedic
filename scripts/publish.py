@@ -30,8 +30,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RELEASE_SCRIPT = os.path.join(ROOT, "scripts", "release.py")
 
 DESCRIPTION = (
-    "本地诊断 Obsidian 同步故障（Remotely Save / Self-hosted LiveSync），"
-    "给出证据、原因和修复步骤。日志只在本机解析，不上传。"
+    "Local diagnostics for Obsidian sync failures (Remotely Save / Self-hosted LiveSync): "
+    "evidence, cause and fix steps. Logs are parsed locally and never uploaded."
 )
 TOPICS = [
     "obsidian",
@@ -98,15 +98,15 @@ def run(cmd, cwd=ROOT, check=True, capture=True):
         for line in result.stdout.rstrip().splitlines():
             print("   ", line)
     if check and result.returncode != 0:
-        print(f"✗ 命令失败（exit {result.returncode}）")
+        print(f"✗ command failed (exit {result.returncode})")
         sys.exit(result.returncode)
     return result
 
 
 def gh(*args, **kwargs):
     if GH is None:
-        print("✗ 找不到 gh 命令行工具。")
-        print("  请安装 GitHub CLI 后重试：")
+        print("✗ the gh command line tool was not found.")
+        print("  Install the GitHub CLI and retry:")
         print("    https://cli.github.com/")
         sys.exit(1)
     return run([GH, *args], **kwargs)
@@ -115,31 +115,31 @@ def gh(*args, **kwargs):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-name", default="obsidian-syncmedic")
-    parser.add_argument("--yes", action="store_true", help="跳过确认")
+    parser.add_argument("--yes", action="store_true", help="skip confirmation")
     args = parser.parse_args()
 
     print("=" * 70)
-    print("SyncMedic 发布")
+    print("SyncMedic release")
     print("=" * 70)
 
     # 1. who am I
     status = gh("auth", "status", check=False)
     if status.returncode != 0:
-        print("\n✗ gh 还没登录。请先在终端执行：\n")
+        print("\n✗ gh is not logged in. Run this in your terminal first:\n")
         print("    gh auth login --web --git-protocol https\n")
-        print("  它会给一个一次性验证码，在浏览器里确认后回到终端粘贴即可。")
+        print("  It prints a one-time code. Confirm it in the browser, then paste the code back into the terminal.")
         return 1
 
     login = gh("api", "user", "--jq", ".login", check=True).stdout.strip().splitlines()[-1]
     user_id = gh("api", "user", "--jq", ".id", check=True).stdout.strip().splitlines()[-1]
     repo_slug = f"{login}/{args.repo_name}"
-    print(f"\n登录账号: {login} (id {user_id})")
-    print(f"目标仓库: https://github.com/{repo_slug}\n")
+    print(f"\nLogged in as: {login} (id {user_id})")
+    print(f"Target repository: https://github.com/{repo_slug}\n")
 
     if not args.yes:
-        answer = input(f"确认创建公开仓库 {repo_slug} 并发布 v0.1.0？[y/N] ").strip().lower()
+        answer = input(f"Create the public repository {repo_slug} and publish v0.1.0? [y/N] ").strip().lower()
         if answer not in ("y", "yes"):
-            print("已取消")
+            print("Cancelled")
             return 1
 
     # 2. manifest
@@ -158,7 +158,7 @@ def main():
         if dirty:
             run(["git", "commit", "-m", "Release 0.1.0"])
         else:
-            print("工作区干净，无需新提交")
+            print("The working tree is clean, no new commit needed")
     else:
         run(["git", "commit", "-m", "SyncMedic 0.1.0"])
 
@@ -176,28 +176,28 @@ def main():
         )
         if created.returncode != 0:
             print()
-            print("✗ 建不了仓库。")
-            print("  当前 token 是 GitHub App 签发的（ghu_ 前缀），")
-            print("  GitHub App 原理上拿不到『建仓库』这种账号级权限。")
+            print("✗ cannot create the repository.")
+            print("  The current token was issued by a GitHub App (ghu_ prefix),")
+            print("  and a GitHub App cannot hold account-level permissions like creating a repository.")
             print()
-            print("  两个解决办法，任选其一：")
+            print("  Two ways out, pick one:")
             print()
-            print("  A. 在浏览器里手动建一个空仓库（10 秒）")
+            print("  A. Create an empty repository by hand in the browser (10 seconds)")
             print(f"     https://github.com/new?name={args.repo_name}&visibility=public")
-            print(f"     仓库名填 {args.repo_name}，可见性 Public，")
-            print("     下面四个勾全部取消（尤其不要勾 README），点 Create repository。")
-            print("     建完告诉我，我这边自动接着推代码、发 Release。")
+            print(f"     Use {args.repo_name} as the repository name and set the visibility to Public,")
+            print("     uncheck all four boxes below(especially do not tick README), then click Create repository.")
+            print("     Tell me when it exists and I will push the code and publish the release.")
             print()
-            print("  B. 换一个有建仓权限的 token（OAuth App 的 gho_ token）")
-            print("     python scripts/gh_device_login.py request   # 拿设备码")
-            print("     在 https://github.com/login/device 输入码并 Authorize")
-            print("     python scripts/gh_device_login.py poll      # 接住 token")
+            print("  B. Use a token that can create repositories (a gho_ token from the OAuth App)")
+            print("     python scripts/gh_device_login.py request   # get a device code")
+            print("     enter the code at https://github.com/login/device and Authorize")
+            print("     python scripts/gh_device_login.py poll      # collect the token")
             print()
-            print("  查这个 token 到底能干什么：")
+            print("  See what this token can actually do:")
             print("     gh api /repos/meghan008288/meghan --jq .permissions")
             return 1
     else:
-        print(f"仓库已存在，跳过创建: {repo_slug}")
+        print(f"Repository already exists, skipping creation: {repo_slug}")
         run(["git", "remote", "remove", "origin"], check=False)
         run(["git", "remote", "add", "origin", f"https://github.com/{repo_slug}.git"])
         run(["git", "push", "-u", "origin", "main"])
@@ -213,7 +213,7 @@ def main():
     run(["git", "tag", "-f", version], check=False)
     run(["git", "push", "origin", version])
 
-    print(f"\n等待 release workflow（tag {version}）…")
+    print(f"\nWaiting for the release workflow (tag {version})…")
     released = False
     for attempt in range(30):
         time.sleep(10)
@@ -221,12 +221,12 @@ def main():
                   check=False)
         if view.returncode == 0:
             released = True
-            print(f"✓ Release 已由 workflow 创建（等待 {(attempt + 1) * 10}s）")
+            print(f"✓ The workflow created the release (waiting {(attempt + 1) * 10}s)")
             break
-        print(f"   等待中… {(attempt + 1) * 10}s")
+        print(f"   waiting… {(attempt + 1) * 10}s")
 
     if not released:
-        print("\nworkflow 没产出 Release，本地兜底创建。")
+        print("\nThe workflow did not produce a release, creating it locally instead.")
         run([sys.executable, RELEASE_SCRIPT, "package"])
         dist = os.path.join(ROOT, "dist")
         gh(
@@ -240,27 +240,27 @@ def main():
         )
 
     # verify the assets are named exactly the way BRAT expects
-    print("\n=== 校验 Release 资产名 ===")
+    print("\n=== checking the release asset names ===")
     assets = gh("release", "view", version, "--repo", repo_slug, "--json",
                 "assets", "--jq", ".assets[].name").stdout
     names = [n.strip() for n in assets.splitlines() if n.strip()]
     for required in ("main.js", "manifest.json", "styles.css"):
         status = "OK  " if required in names else "MISS"
         print(f"  {status} {required}")
-    print(f"  实际资产: {', '.join(names)}")
+    print(f"  actual assets: {', '.join(names)}")
 
     # 6. the community registry entry
-    print("\n=== 提交官方社区插件市场用的一行 ===")
+    print("\n=== the line to submit to the community directory ===")
     run([sys.executable, RELEASE_SCRIPT, "entry", "--repo", repo_slug])
 
     print("\n" + "=" * 70)
-    print("完成。")
-    print(f"仓库    : https://github.com/{repo_slug}")
+    print("Done.")
+    print(f"Repository: https://github.com/{repo_slug}")
     print(f"Release : https://github.com/{repo_slug}/releases/tag/{version}")
     print("")
-    print("BRAT 用户安装：装 BRAT 后执行命令")
+    print("For BRAT users: install BRAT, then run the command")
     print("  Plugins: Add a beta plugin for testing")
-    print(f"  填入: {repo_slug}")
+    print(f"  enter: {repo_slug}")
     print("=" * 70)
     return 0
 

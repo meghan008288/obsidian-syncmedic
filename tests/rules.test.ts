@@ -39,7 +39,7 @@ const CASES: {
     ruleId: "RS-03",
     pluginId: "remotely-save",
     sample:
-      '微软 Graph API 对文件夹创建策略的限制：原插件在创建仓库根目录时使用了 @microsoft.graph.conflictBehavior: "replace"。微软 Graph 会直接拒绝并返回 400 Bad Request。',
+      'Microsoft Graph API limits the conflict behavior for folders: the original plugin used @microsoft.graph.conflictBehavior: "replace" when it created the repository root. Microsoft Graph rejects that outright and returns 400 Bad Request.',
   },
   {
     ruleId: "RS-04",

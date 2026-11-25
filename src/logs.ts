@@ -96,16 +96,16 @@ export const CONFIG_DIR_TOKEN = "{configDir}";
 export const LOG_SOURCES: LogSourceSpec[] = [
   {
     id: "livesync-log",
-    label: "LiveSync 日志文件（livesync_log_*）",
+    label: "LiveSync log file (livesync_log_*)",
     pluginId: "obsidian-livesync",
     roots: [""],
     prefixes: ["livesync_log_"],
     hint:
-      "LiveSync 设置里打开 “Write logs into the file”，日志就会以 livesync_log_ 开头落在 vault 根目录。",
+      "Turn on “Write logs into the file” in the LiveSync settings and the log lands in the vault root with a livesync_log_ prefix.",
   },
   {
     id: "livesync-plugin-dir",
-    label: "LiveSync 插件目录",
+    label: "LiveSync plugin folder",
     pluginId: "obsidian-livesync",
     roots: [
       `${CONFIG_DIR_TOKEN}/plugins/obsidian-livesync/`,
@@ -116,11 +116,11 @@ export const LOG_SOURCES: LogSourceSpec[] = [
     extraFolders: ["logs/"],
     optional: true,
     hint:
-      "确认 LiveSync 已安装。如果日志不在插件目录，去设置里打开 “Write logs into the file” 再复现一次故障。",
+      "Make sure LiveSync is installed. If the log is not in the plugin folder, turn on “Write logs into the file” in the settings and reproduce the failure once.",
   },
   {
     id: "remotely-save-debug",
-    label: "Remotely Save 调试导出（_debug_remotely_save/）",
+    label: "Remotely Save debug export (_debug_remotely_save/)",
     pluginId: "remotely-save",
     roots: ["_debug_remotely_save/"],
     prefixes: [
@@ -129,27 +129,27 @@ export const LOG_SOURCES: LogSourceSpec[] = [
       "profiler_results_exported_on_",
     ],
     hint:
-      "Remotely Save 自己不写日志文件，只往 Obsidian 控制台输出。用它的调试导出功能把日志存进 _debug_remotely_save/ 再采集。",
+      "Remotely Save does not write log files, it only prints to the Obsidian console. Use its debug export to save the log into _debug_remotely_save/ and then collect it.",
   },
   {
     id: "remotely-save-plugin-dir",
-    label: "Remotely Save 插件目录",
+    label: "Remotely Save plugin folder",
     pluginId: "remotely-save",
     roots: [`${CONFIG_DIR_TOKEN}/plugins/remotely-save/`],
     suffixes: [".log", ".txt"],
     extraFolders: ["logs/"],
     optional: true,
     hint:
-      "插件目录里没有日志属于正常情况（上游不落盘）。改用 Logstravaganza 存控制台输出，或者直接把控制台内容粘贴进来。",
+      "An empty plugin folder is normal here (upstream does not write to disk). Use Logstravaganza to keep the console output, or paste the console output in directly.",
   },
   {
     id: "logstravaganza",
-    label: "Logstravaganza 日志笔记",
+    label: "Logstravaganza log note",
     pluginId: "unknown",
     roots: [""],
     prefixes: ["LOGGING-NOTE"],
     hint:
-      "装 Logstravaganza 插件可以把控制台输出存成 LOGGING-NOTE*.md，这是 Remotely Save 官方文档推荐的 iOS 做法。",
+      "The Logstravaganza plugin can save console output as LOGGING-NOTE*.md. This is the approach the Remotely Save docs recommend on iOS.",
   },
 ];
 
@@ -218,7 +218,7 @@ export async function collectLogs(
         } catch (error) {
           if (!source.optional) {
             errors.push(
-              `${source.label}：读不到目录 ${directory === "" ? "(vault 根目录)" : directory}（${errorMessage(error)}）`
+              `${source.label}: cannot read the directory ${directory === "" ? "(vault root)" : directory} (${errorMessage(error)})`
             );
           }
           continue;
@@ -233,7 +233,7 @@ export async function collectLogs(
           try {
             text = await adapter.read(file);
           } catch (error) {
-            errors.push(`${source.label}：读取 ${file} 失败（${errorMessage(error)}）`);
+            errors.push(`${source.label}: failed to read ${file} (${errorMessage(error)})`);
             continue;
           }
 
@@ -266,10 +266,10 @@ export async function collectLogs(
   if (pasted) {
     documents.push({
       pluginId: "unknown",
-      path: "粘贴的控制台输出",
+      path: "Pasted console output",
       text: pasted,
       sourceId: "pasted",
-      sourceLabel: "粘贴的控制台输出",
+      sourceLabel: "Pasted console output",
       bytes: pasted.length,
       truncated: false,
     });

@@ -120,8 +120,8 @@ test("the pipeline survives a vault with no logs at all", async () => {
   const result = await runDiagnostics({ adapter });
 
   assert.equal(result.analysis.matches.length, 0);
-  assert.ok(result.markdown.includes("没有命中"));
-  assert.ok(result.summary.includes("没有命中"));
+  assert.ok(result.markdown.includes("No known failure signature"));
+  assert.ok(result.summary.includes("no known failure signature"));
 });
 
 test("normalizeSettings keeps known values and fills in the rest", () => {

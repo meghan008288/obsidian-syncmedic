@@ -84,7 +84,7 @@ Claim 完成后插件会出现在你的 **Plugins** 页面。
 
 1. 把插件装进 Obsidian（见 `RELEASE.md` 的 BRAT 装法）
 2. 把 `samples/` 里的任一个文件丢进 vault（`livesync_log_2026-11-24.md` 或 `_debug_remotely_save/log_hist_exported_on_1764000000000.md`），这样能触发全部 22 条规则
-3. 命令面板跑 `SyncMedic: 运行同步体检`
+3. 命令面板跑 `SyncMedic: Run health check`
 4. `Ctrl+Shift+I` 打开开发者控制台，切走再截图
 5. 存到 `screenshots/` 目录，建议文件名：
    - `screenshots/report.png` —— 报告弹窗，命中规则、证据行、修复步骤
