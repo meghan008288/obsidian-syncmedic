@@ -1,11 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### English
+
+- Fixed the drift check on Linux. It called `curl.exe`, which only exists on Windows, so on the scheduled runner every request failed and a real drift could never have been reported. It now picks the binary that fits the platform, reads the HTTP status back, and tells a network failure apart from a fingerprint that really moved.
+- A broken network no longer files a false "Fingerprint drift detected" issue. The check now exits with 1 when a fingerprint moved and with 2 when the upstream could not be reached, and only the first one opens an issue.
+- Retaken the marketplace screenshots. The old ones showed version 0.1.5, one of them showed a desktop with a private conversation on it instead of the plugin, and the Obsidian interface was in Chinese.
+
+### 中文
+
+- 修好了漂移检测在 Linux 上跑不起来的问题:它写死了 `curl.exe`,这个文件只有 Windows 有,定时任务每次请求都会失败,真漂移反而报不出来。现在会按平台选可执行文件,会把 HTTP 状态码读回来,也能区分「网络不通」和「指纹真的没了」。
+- 网络故障不会再误开一个假的「Fingerprint drift detected」issue:真的漂移退出码是 1,连不上上游退出码是 2,只有前者才开 issue。
+- 重拍了市场截图:旧图里还写着 0.1.5,其中一张拍到的是带私人对话的桌面而不是插件本身,而且 Obsidian 界面是中文。
+
 ## 0.1.6 - 2026-11-25
 
 ### English
 
 - The repository now ships a fingerprint drift detector. Every rule is pinned to the upstream file or issue its fingerprint came from, a scheduled workflow checks that the text is still there, and a fingerprint that disappeared opens an issue instead of silently breaking the diagnosis. See `docs/fingerprint-drift.md`.
-- Fixed the test setup. The release workflow ran on Node 20, where the test runner finds no `.test.ts` files at all, so the "Unit tests" step had been passing without running anything. The workflow now runs Node 24 and the 88 tests really execute.
+- Fixed the test setup. The release workflow ran on Node 20, where the test runner finds no `.test.ts` files at all, so the "Unit tests" step had been passing without running anything. The workflow now runs Node 24 and every test really executes.
 
 ### 中文
 
