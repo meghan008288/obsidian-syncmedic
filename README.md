@@ -136,12 +136,12 @@ The plugin ships through three channels, in increasing order of convenience:
 | Channel | How a user installs it | What it needs | Available now |
 | --- | --- | --- | --- |
 | **Manual** | Download the zip and unpack it into the vault | One zip | ✅ Ready |
-| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.5`) |
+| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.6`) |
 | **Official community directory** | Search "SyncMedic" in the directory and hit install | A public repository + an approved listing | ✅ Live (<https://community.obsidian.md/plugins/syncmedic>) |
 
 ### Channel 1: manual install
 
-Download `syncmedic-0.1.5.zip` and unpack it into your vault:
+Download `syncmedic-0.1.6.zip` and unpack it into your vault:
 
 ```
 <your vault>/.obsidian/plugins/syncmedic/
@@ -213,12 +213,12 @@ The full manual is in [`RELEASE.md`](./RELEASE.md). The shortest path:
 
 ```bash
 python scripts/release.py configure --github your-github-username  # set the author info
-python scripts/release.py check --tag 0.1.5                        # pre-release checks
+python scripts/release.py check --tag 0.1.6                        # pre-release checks
 python scripts/release.py package                                  # build dist/
 python scripts/release.py entry --repo your-username/obsidian-syncmedic  # the listing line
 ```
 
-Once the `0.1.5` tag is pushed, GitHub Actions runs the tests, builds and
+Once the `0.1.6` tag is pushed, GitHub Actions runs the tests, builds and
 publishes the release by itself.
 
 ---
@@ -228,11 +228,22 @@ publishes the release by itself.
 ```bash
 npm install
 
-npm test          # 80 unit tests (Node's built-in test runner, no extra dependencies)
+npm test          # 88 unit tests (Node's built-in test runner, no extra dependencies)
 npm run typecheck # tsc --noEmit
 npm run build     # bundles main.js
 node scripts/verify.ts   # end-to-end run against the real samples in samples/
+npm run check:fingerprints  # checks that every fingerprint still exists upstream
 ```
+
+The fingerprint check is worth knowing about: every rule matches text that
+Remotely Save or LiveSync prints, and when an upstream project rewrites a
+message the rule silently stops matching. `src/rule-anchors.ts` pins each
+fingerprint to the upstream file or issue it came from, and a scheduled
+workflow fails and opens an issue when one of them is gone. See
+[`docs/fingerprint-drift.md`](./docs/fingerprint-drift.md).
+
+Node 22.18 or newer is required, because the test runner strips the
+TypeScript types.
 
 ### Code structure
 

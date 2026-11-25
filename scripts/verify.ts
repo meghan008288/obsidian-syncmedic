@@ -59,7 +59,7 @@ class NodeFsAdapter implements VaultAdapter {
 const adapter = new NodeFsAdapter(sampleRoot);
 const result = await runDiagnostics({
   adapter,
-  pluginVersion: "0.1.5",
+  pluginVersion: "0.1.6",
   vaultName: "sample-vault",
   generatedAt: "2026-11-24 09:20:00",
 });

@@ -1,0 +1,50 @@
+name: Fingerprint drift
+
+# Every rule in src/rules.ts matches text that an upstream project prints. When
+# that text changes upstream, the rule silently stops matching and users get
+# "no known problem" instead of a diagnosis. This job checks that every
+# fingerprint still exists where src/rule-anchors.ts says it should.
+
+on:
+  schedule:
+    # Mondays at 04:17 UTC
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check the fingerprints against the upstream plugins
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Check the fingerprints
+        id: drift
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check_fingerprints.ts --report drift-report.md
+
+      - name: Open or update an issue
+        if: steps.drift.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          title="Fingerprint drift detected"
+          number=$(gh issue list --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file drift-report.md
+          else
+            gh issue create --title "$title" --body-file drift-report.md
+          fi

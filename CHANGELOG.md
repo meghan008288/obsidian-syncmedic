@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.6 - 2026-11-25
+
+### English
+
+- The repository now ships a fingerprint drift detector. Every rule is pinned to the upstream file or issue its fingerprint came from, a scheduled workflow checks that the text is still there, and a fingerprint that disappeared opens an issue instead of silently breaking the diagnosis. See `docs/fingerprint-drift.md`.
+- Fixed the test setup. The release workflow ran on Node 20, where the test runner finds no `.test.ts` files at all, so the "Unit tests" step had been passing without running anything. The workflow now runs Node 24 and the 88 tests really execute.
+
+### 中文
+
+- 仓库新增指纹漂移检测:每条规则都锚定到它出处的那份上游文件或 issue,定时任务会检查那段文字是否还在;一旦消失就开 issue,而不是让诊断静默失效。详见 `docs/fingerprint-drift.md`。
+- 修好了测试流程:发布工作流之前跑在 Node 20 上,而 Node 20 的测试发现根本找不到 `.test.ts` 文件,所谓「Unit tests」那一步其实什么都没跑就绿灯了。现在工作流用 Node 24,88 个测试真的会执行。
+
 ## 0.1.5 - 2026-11-25
 
 ### English
