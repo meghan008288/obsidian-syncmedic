@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.5 - 2026-11-25
+
+### English
+
+- The report now names the file each piece of evidence came from, so a rule that matched in several log files can be traced back to the right one.
+- Removed the "Hosted fix service URL" setting. It pointed at a domain nobody owns and no code ever read it.
+
+### 中文
+
+- 报告里的每条证据现在都带上来源文件名,一条规则在多个日志里命中时能直接对上是哪个文件。
+- 删掉了「托管修复服务地址」设置:它指向一个没人持有的域名,而且代码从来没读过它。
+
 ## 0.1.4 - 2026-11-25
 
 ### English

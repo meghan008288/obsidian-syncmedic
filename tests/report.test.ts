@@ -26,12 +26,27 @@ test("the markdown report names every matched rule", () => {
   assert.ok(md.includes("RS-01"), "rule id must appear");
 });
 
-test("the markdown report shows the evidence with its line number", () => {
+test("the markdown report shows the evidence with its file and line number", () => {
   const analysis = analyzeDocuments([DOC]);
   const md = renderMarkdownReport({ analysis });
 
   assert.ok(md.includes("Request failed, status 403"));
-  assert.ok(md.includes("L2"), "the evidence line number must be shown");
+  assert.ok(
+    md.includes("livesync_log_test.md:2"),
+    "the evidence must name the file and the line it came from"
+  );
+});
+
+test("evidence from two different files stays distinguishable", () => {
+  const line = "plugin:remotely-save:234 Error: Request failed, status 403";
+  const analysis = analyzeDocuments([
+    { pluginId: "remotely-save", path: "first.log", text: line },
+    { pluginId: "remotely-save", path: "second.log", text: line },
+  ]);
+  const md = renderMarkdownReport({ analysis });
+
+  assert.ok(md.includes("first.log:"), "the first file must be named");
+  assert.ok(md.includes("second.log:"), "the second file must be named");
 });
 
 test("the markdown report lists the fix steps and the upstream issue links", () => {

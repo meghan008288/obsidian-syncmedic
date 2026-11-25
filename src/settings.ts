@@ -12,8 +12,6 @@ export interface SyncMedicSettings {
   maxBytesPerFile: number;
   /** Maximum number of log files collected per run. */
   maxFiles: number;
-  /** Where the hosted repair service lives (used by the paid tier later). */
-  serviceUrl: string;
   /** Show the evidence lines in the report. */
   includeEvidence: boolean;
 }
@@ -22,12 +20,11 @@ export const DEFAULT_SETTINGS: SyncMedicSettings = {
   scanOnStartup: false,
   maxBytesPerFile: 2_000_000,
   maxFiles: 50,
-  serviceUrl: "https://syncmedic.app",
   includeEvidence: true,
 };
 
 /** Kept in sync with manifest.json. */
-export const PLUGIN_VERSION = "0.1.4";
+export const PLUGIN_VERSION = "0.1.5";
 
 function asBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;
@@ -37,10 +34,6 @@ function asNumber(value: unknown, fallback: number, min: number): number {
   if (typeof value !== "number" || !Number.isFinite(value)) return fallback;
   if (value < min) return fallback;
   return Math.floor(value);
-}
-
-function asString(value: unknown, fallback: string): string {
-  return typeof value === "string" && value.length > 0 ? value : fallback;
 }
 
 export function normalizeSettings(raw: unknown): SyncMedicSettings {
@@ -56,7 +49,6 @@ export function normalizeSettings(raw: unknown): SyncMedicSettings {
       1024
     ),
     maxFiles: asNumber(input.maxFiles, DEFAULT_SETTINGS.maxFiles, 1),
-    serviceUrl: asString(input.serviceUrl, DEFAULT_SETTINGS.serviceUrl),
     includeEvidence: asBoolean(
       input.includeEvidence,
       DEFAULT_SETTINGS.includeEvidence

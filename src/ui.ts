@@ -205,18 +205,6 @@ export class SyncMedicSettingsTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Hosted fix service URL")
-      .setDesc("The server the paid “one-click hosted fix” calls.")
-      .addText((text) =>
-        text
-          .setValue(this.plugin.settings.serviceUrl)
-          .onChange(async (value) => {
-            this.plugin.settings.serviceUrl = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
-    new Setting(containerEl)
       .setName("Plugin version")
       .setDesc(`Current version ${PLUGIN_VERSION}`)
       .addButton((button) =>
