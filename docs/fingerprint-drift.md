@@ -51,18 +51,37 @@ Both sides of the comparison are canonicalised the same way: template holes
 ```bash
 npm run check:fingerprints                    # against the live upstream
 node scripts/check_fingerprints.ts --offline  # against the local _src copies
+node scripts/check_fingerprints.ts --local-src DIR  # against another local copy
 node scripts/check_fingerprints.ts --proxy http://127.0.0.1:7897
 node scripts/check_fingerprints.ts --report drift-report.md
+node scripts/check_fingerprints.ts --max-time 10 --retries 0
 ```
 
-The exit code is 1 when an active anchor drifted, so CI can fail on it.
+The exit codes tell the three outcomes apart:
+
+| Exit code | Meaning | What the scheduled job does |
+| --- | --- | --- |
+| 0 | Every fingerprint was looked at and none of them moved | nothing |
+| 1 | A fingerprint really moved | opens or updates an issue |
+| 2 | The upstream could not be read at all | fails the job, opens no issue |
+
+Exit 2 exists because a machine that cannot reach GitHub is not the same thing
+as an upstream that rewrote a message. The last line of the report spells the
+outcome out as `RESULT: no-drift`, `RESULT: drift` or `RESULT: unverifiable`.
+
+The check works on Windows and on Linux: `scripts/http.ts` picks `curl.exe` or
+`curl` depending on the platform, reads the HTTP status back from the
+response, and treats a missing upstream file as a broken anchor rather than
+as a network problem.
 
 ## The scheduled check
 
 `.github/workflows/fingerprint-drift.yml` runs every Monday and on demand. When
 a fingerprint drifted it opens (or comments on) an issue titled
 "Fingerprint drift detected" with the full report attached, so the breakage
-shows up in the issue tracker instead of in a user's log.
+shows up in the issue tracker instead of in a user's log. A check that could
+not be completed fails the job with the report in the job summary and opens no
+issue, so a broken network never looks like an upstream change.
 
 ## What to do when it reports a drift
 

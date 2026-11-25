@@ -30,13 +30,32 @@ jobs:
 
       - name: Check the fingerprints
         id: drift
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/check_fingerprints.ts --report drift-report.md
+        run: |
+          set +e
+          node scripts/check_fingerprints.ts --report drift-report.md
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ -f drift-report.md ]; then
+            result=$(grep -m1 '^RESULT: ' drift-report.md | cut -d' ' -f2)
+            echo "result=${result:-unknown}" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=crashed" >> "$GITHUB_OUTPUT"
+          fi
+          exit 0
+
+      - name: Publish the report
+        if: always()
+        run: |
+          if [ -f drift-report.md ]; then
+            cat drift-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "The check did not write a report." >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Open or update an issue
-        if: steps.drift.outcome == 'failure'
+        if: steps.drift.outputs.result == 'drift'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -48,3 +67,9 @@ jobs:
           else
             gh issue create --title "$title" --body-file drift-report.md
           fi
+
+      - name: Fail when the check could not be completed
+        if: steps.drift.outputs.result != 'drift' && steps.drift.outputs.result != 'no-drift'
+        run: |
+          echo "The fingerprints could not be checked against the upstream projects." >> "$GITHUB_STEP_SUMMARY"
+          exit 1

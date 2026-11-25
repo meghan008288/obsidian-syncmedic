@@ -7,3 +7,5 @@ dist/
 data.json
 # Local state of the GitHub device-code login helper.
 .gh-device-state.json
+# Report written by scripts/check_fingerprints.ts.
+drift-report.md
