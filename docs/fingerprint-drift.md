@@ -18,7 +18,7 @@ pinned to the exact upstream place it came from.
 
 ```ts
 export interface RuleAnchor {
-  kind: "source" | "issue";
+  kind: "source" | "issue" | "external";
   project: "remotely-save" | "obsidian-livesync";
   /** File inside the upstream repository, or the issue number. */
   target: string;
@@ -39,14 +39,21 @@ export const RULE_ANCHORS: Record<string, RuleAnchor[]> = { /* ... */ };
 - `kind: "issue"` — the message was reported by a user, so it is pinned to the
   upstream issue where it was reported. The checker reads the issue body **and
   its comments**, because the error output usually lives in a comment.
+- `kind: "external"` — the message does not come from the upstream project at
+  all. It comes from the browser, from Obsidian's own HTTP helper or from a
+  third party API. There is nothing upstream to watch, so the checker reports
+  it and never fails on it. Seven of the 67 fingerprints are like this: the
+  Microsoft Graph error codes `invalidAuthenticationToken`,
+  `unauthenticated_client` and `Access token has expired`, plus Chromium's
+  `net::ERR_NETWORK_CHANGED`.
 - `status: "legacy"` — the upstream stopped emitting the message (the code is
   commented out now), but the rule still matches logs from older versions.
   These are reported, not failed, so the rule can be retired on purpose.
 
-A rule can have more than one anchor. That is what a rule needs when its
-fingerprints come from several places in the upstream project: every
-fingerprint then carries its own pin. The checker ends up with one verdict per
-rule:
+**Every fingerprint of every rule has its own anchor.** A rule is a list of
+alternative patterns, and each of those patterns is pinned to the place it
+came from, so a rewrite of any one of them is noticed. The checker ends up
+with one verdict per rule:
 
 | Verdict | Meaning | Fails the job |
 | --- | --- | --- |
@@ -55,6 +62,10 @@ rule:
 | `drift` | every fingerprint of the rule is gone, the rule is dead | yes |
 | `legacy` | the upstream stopped emitting the message on purpose | no |
 | `error` | the upstream could not be read, so nothing was learned | yes, as unverifiable |
+
+A test enforces the promise: every pattern of every rule has to be covered by
+an anchor of that rule, and an `external` anchor has to say where its text
+really comes from.
 
 Both sides of the comparison are canonicalised the same way: template holes
 (`${...}`) and number runs collapse to `#`, so the source literal

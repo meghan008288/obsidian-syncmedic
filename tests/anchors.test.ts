@@ -84,7 +84,6 @@ test("an anchor protects the fingerprint it is supposed to protect", () => {
 test("a rule that pins more than one fingerprint pins all of them", () => {
   for (const rule of RULES) {
     const anchors = anchorsOf(rule);
-    if (anchors.length < 2) continue;
     const literals = anchors.map((anchor) => anchor.literal.toLowerCase());
     for (const pattern of patternsOf(rule)) {
       const source = pattern.replace(/\\/g, "").toLowerCase();
@@ -94,6 +93,39 @@ test("a rule that pins more than one fingerprint pins all of them", () => {
       assert.ok(
         covered,
         `${rule.id}: the fingerprint "${pattern}" is not pinned to any upstream place`
+      );
+    }
+  }
+});
+
+test("every fingerprint of every rule is pinned to a place", () => {
+  for (const rule of RULES) {
+    const literals = anchorsOf(rule).map((anchor) => anchor.literal.toLowerCase());
+    assert.ok(literals.length > 0, `${rule.id} has no anchor`);
+    for (const pattern of patternsOf(rule)) {
+      const source = pattern.replace(/\\/g, "").toLowerCase();
+      const covered = literals.some(
+        (literal) => source.includes(literal) || literal.includes(source)
+      );
+      assert.ok(
+        covered,
+        `${rule.id}: the fingerprint "${pattern}" is not pinned to any upstream place`
+      );
+    }
+  }
+});
+
+test("an anchor that is not upstream code explains where the text comes from", () => {
+  for (const rule of RULES) {
+    for (const anchor of anchorsOf(rule)) {
+      if (anchor.kind !== "external") continue;
+      assert.ok(
+        anchor.reason && anchor.reason.length > 10,
+        `${rule.id} has an external anchor without a reason`
+      );
+      assert.ok(
+        anchor.target.length > 0,
+        `${rule.id} has an external anchor without a target`
       );
     }
   }

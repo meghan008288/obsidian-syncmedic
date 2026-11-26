@@ -124,7 +124,7 @@ function fetchJson(url: string): any {
 
 interface AnchorOutcome {
   anchor: RuleAnchor;
-  state: "ok" | "drift" | "legacy" | "skipped" | "error";
+  state: "ok" | "drift" | "legacy" | "external" | "skipped" | "error";
   detail: string;
 }
 
@@ -140,6 +140,20 @@ interface RuleOutcome {
    * "skipped"  there was nothing to read (offline without a local copy).
    */
   state: "ok" | "partial" | "drift" | "legacy" | "error" | "skipped";
+}
+
+/**
+ * Some fingerprints do not come from the upstream project at all: they are
+ * produced by the browser, by Obsidian's own HTTP helper or by a third party
+ * API. There is nothing upstream to watch, so such an anchor is reported and
+ * never fails the check.
+ */
+function checkExternal(anchor: RuleAnchor): AnchorOutcome {
+  return {
+    anchor,
+    state: "external",
+    detail: `comes from ${anchor.target}, not from the upstream code`,
+  };
 }
 
 function checkSource(anchor: RuleAnchor): AnchorOutcome {
@@ -286,7 +300,11 @@ function latestRelease(project: string): string {
  * drifted.
  */
 function rollUp(ruleId: string, anchors: AnchorOutcome[]): RuleOutcome {
-  const active = anchors.filter((a) => a.anchor.status === "active");
+  // Only the anchors that point into the upstream project can drift. The
+  // external ones have nothing upstream to watch.
+  const active = anchors.filter(
+    (a) => a.anchor.status === "active" && a.anchor.kind !== "external"
+  );
   const alive = active.filter((a) => a.state === "ok");
   const moved = active.filter((a) => a.state === "drift");
   const unreachable = anchors.filter((a) => a.state === "error");
@@ -305,9 +323,10 @@ const rules: RuleOutcome[] = [];
 for (const rule of RULES) {
   const anchors = RULE_ANCHORS[rule.id];
   if (!anchors || anchors.length === 0) continue;
-  const outcomes = anchors.map((anchor) =>
-    anchor.kind === "source" ? checkSource(anchor) : checkIssue(anchor)
-  );
+  const outcomes = anchors.map((anchor) => {
+    if (anchor.kind === "external") return checkExternal(anchor);
+    return anchor.kind === "source" ? checkSource(anchor) : checkIssue(anchor);
+  });
   rules.push(rollUp(rule.id, outcomes));
 }
 
@@ -355,17 +374,22 @@ for (const rule of rules) {
           ? "DRIFT  "
           : anchor.state === "legacy"
             ? "legacy "
-            : anchor.state === "skipped"
-              ? "skipped"
-              : "error  ";
+            : anchor.state === "external"
+              ? "extern "
+              : anchor.state === "skipped"
+                ? "skipped"
+                : "error  ";
     lines.push(
       `           ${anchorMark} ${anchor.anchor.kind.padEnd(5)} ${anchor.detail}`,
     );
   }
 }
 lines.push("");
+const externalAnchors = rules.flatMap((r) =>
+  r.anchors.filter((a) => a.state === "external")
+).length;
 lines.push(
-  `${ok.length} ok, ${partial.length} partial, ${legacy.length} legacy, ${drifted.length} drifted, ${errors.length} unreachable, ${skipped.length} skipped`,
+  `${ok.length} ok, ${partial.length} partial, ${legacy.length} legacy, ${drifted.length} drifted, ${errors.length} unreachable, ${skipped.length} skipped, ${externalAnchors} external`,
 );
 // The workflow reads this line to tell a real drift apart from a machine
 // that could not reach the upstream projects.

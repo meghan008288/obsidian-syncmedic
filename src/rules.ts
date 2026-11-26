@@ -106,7 +106,7 @@ export const RULES: RuleDefinition[] = [
     ],
     issues: [
       { repo: RS, number: 11, relation: "direct" },
-      { repo: RS, number: 920, relation: "direct" },
+      { repo: RS, number: 920, relation: "related" },
     ],
   },
   {
@@ -284,7 +284,10 @@ export const RULES: RuleDefinition[] = [
       "Windows users should also check whether the default browser is Internet Explorer or an old Edge",
       "If it connects but still errors, look up the exact error code in RS-01 / RS-02 / RS-03",
     ],
-    issues: [{ repo: RS, number: 920, relation: "direct" }],
+    issues: [
+      { repo: RS, number: 11, relation: "direct" },
+      { repo: RS, number: 920, relation: "related" },
+    ],
   },
   {
     id: "RS-11",

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.8 - 2026-11-26
+
+### English
+
+- Every single fingerprint of every rule is now pinned to the place it really comes from. The 22 rules have 67 fingerprints between them, and each one has its own anchor: the upstream file that prints it, or the upstream issue a user pasted it into. Before this, a rule was pinned to one place only, so a rewrite of the other fingerprints went unnoticed.
+- Seven fingerprints do not come from the upstream projects at all and are now marked as such: the Microsoft Graph error codes `invalidAuthenticationToken`, `unauthenticated_client` and `Access token has expired`, and Chromium's `net::ERR_NETWORK_CHANGED`. The checker reports them and never fails on them, because there is nothing upstream to watch.
+- The OneDrive rules now point at the issue that really holds the evidence. Issue #920 turned out to contain no error text at all, so RS-01 and RS-10 cite issue #11 (the pasted 403 log) instead, and #920 stays as the related discussion.
+
+### 中文
+
+- 现在每一条规则的**每一个指纹**都钉在了它真正的出处上。22 条规则一共 67 条指纹,每一条都有自己的锚点:打印它的上游文件,或者用户粘进去的那个上游 issue。在这之前,一条规则只有一个锚点,其它指纹被改写完全没人知道。
+- 有 7 条指纹根本不是上游项目产生的,现在明确标出来了:Microsoft Graph 的错误码 `invalidAuthenticationToken`、`unauthenticated_client`、`Access token has expired`,以及 Chromium 的 `net::ERR_NETWORK_CHANGED`。检测器只报告它们、不会因为它们失败,因为上游没有东西可盯。
+- OneDrive 那几条规则改指向真正有证据的 issue。#920 里其实一个错误串都没有,所以 RS-01 和 RS-10 现在引用 #11(用户粘的 403 日志),#920 保留为相关讨论。
+
 ## 0.1.7 - 2026-11-26
 
 ### English
