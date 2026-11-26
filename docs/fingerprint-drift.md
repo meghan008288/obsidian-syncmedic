@@ -68,9 +68,30 @@ an anchor of that rule, and an `external` anchor has to say where its text
 really comes from.
 
 Both sides of the comparison are canonicalised the same way: template holes
-(`${...}`) and number runs collapse to `#`, so the source literal
-`Request failed, status ${status}` still matches a fingerprint written as
-`Request failed, status 403`.
+(`${...}`) collapse to `#`, so the source literal `Request failed, status
+${status}` still matches a fingerprint written as `Request failed, status
+403`.
+
+**Digits are not collapsed.** They used to be, and that made every numeric
+fingerprint match almost anything: `405` became `#`, and `#` is in nearly
+every issue. The anchors are concrete strings copied out of the upstream
+text, so they are compared as they are.
+
+## Fingerprints that were too generic
+
+Two fingerprints matched so much that they were not worth watching, and they
+also made their rules fire on the wrong logs:
+
+| Was | Is now | Why |
+| --- | --- | --- |
+| `\b405\b` | `405 Method not allowed` | The WebDAV library prints `Invalid response: 405 Method not allowed`. The bare number also matched any log with a 405 in it: a port, a byte count, a timestamp. |
+| `onedrive` | `graph.microsoft.com` | The Graph API host, which the upstream prints in its request log. |
+| `graph` | `Microsoft Graph` | The product name as the upstream issue writes it. |
+| `microsoft` | `Graph API` | The API name, not a word that appears in every Windows path. |
+
+`Method Not Allowed` on its own went away too: the status code and the reason
+phrase always come together in the response, so matching the pair keeps the
+rule honest.
 
 ## Running it
 

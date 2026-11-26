@@ -83,14 +83,16 @@ function token(): string {
 
 /**
  * Collapse the parts that legitimately differ between two copies of the same
- * message: template holes and number runs. "Request failed, status ${status}"
- * and "Request failed, status 403" then compare equal.
+ * message: template holes. "Request failed, status ${status}" and "Request
+ * failed, status 403" then compare equal.
+ *
+ * Digits are NOT collapsed. They used to be, which made every numeric
+ * fingerprint match almost anything: "405" became "#", and "#" is in nearly
+ * every issue. The anchors are concrete strings that were copied out of the
+ * upstream text, so they can be compared exactly.
  */
 function canonical(text: string): string {
-  return text
-    .replace(/\$\{[^}]*\}/g, "#")
-    .replace(/\d+/g, "#")
-    .toLowerCase();
+  return text.replace(/\$\{[^}]*\}/g, "#").toLowerCase();
 }
 
 const fetchCache = new Map<string, HttpResult>();

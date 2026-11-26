@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.9 - 2026-11-26
+
+### English
+
+- Fixed two fingerprints that were too generic to be worth watching. The WebDAV rule matched a bare `405`, so any log with a 405 in it (a port, a byte count, a timestamp) looked like a WebDAV failure; it now matches `405 Method not allowed`, which is what the WebDAV library really prints. The Graph rule matched the bare words `onedrive`, `graph` and `microsoft`, so it fired on unrelated failures; it now needs `graph.microsoft.com`, `Microsoft Graph` or `Graph API`.
+- The drift checker no longer collapses numbers when it compares a fingerprint with the upstream text. It did, and that turned every numeric fingerprint into "#", which is in nearly every issue, so a numeric anchor could not fail. The anchors are concrete strings copied out of the upstream text, so they are compared exactly now.
+- Two tests were added that keep the rules honest: a bare status number must not match, and a mention of Microsoft must not trigger the Graph rule.
+
+### 中文
+
+- 修好了两条过于泛化、因而没有监测价值的指纹。WebDAV 那条原来匹配裸的 `405`,于是日志里任何带 405 的地方(端口、字节数、时间戳)都会被当成 WebDAV 故障;现在它匹配 `405 Method not allowed`,这才是 WebDAV 库真正打印的原文。Graph 那条原来匹配裸词 `onedrive`、`graph`、`microsoft`,会对无关故障误报;现在要求出现 `graph.microsoft.com`、`Microsoft Graph` 或 `Graph API`。
+- 漂移检测在比对指纹和上游文本时不再把数字抹平。以前会抹,结果每个数字指纹都变成「#」,而几乎每个 issue 里都有「#」,数字锚点根本不可能失败。锚点都是从上游文本里抄出来的具体字符串,现在按原样精确比对。
+- 新增两个测试守住这两条规则:裸状态码不该命中,提到 Microsoft 也不该触发 Graph 那条。
+
 ## 0.1.8 - 2026-11-26
 
 ### English

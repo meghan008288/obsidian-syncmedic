@@ -47,7 +47,7 @@ const CASES: {
   {
     ruleId: "RS-04",
     pluginId: "remotely-save",
-    sample: "Request failed, status 405",
+    sample: "Error: Invalid response: 405 Method not allowed",
   },
   {
     ruleId: "RS-04",
@@ -233,6 +233,28 @@ test("every rule has a unique id, at least one fix step and at least one issue a
       assert.ok(group.length > 0, `${rule.id} has an empty signature group`);
     }
   }
+});
+
+test("a bare status number does not count as a failure", () => {
+  // 405 used to be a fingerprint of its own, so any log with a 405 in it
+  // (a port, a byte count, a timestamp) looked like a WebDAV failure.
+  const { result } = analyzeOne(
+    "remotely-save",
+    "2025-11-12T10:23:45.123Z [INFO] connected to 10.0.0.405:8443"
+  );
+  assert.equal(result.matches.length, 0);
+});
+
+test("the Graph rule needs the Graph API in the text, not just any mention of Microsoft", () => {
+  const { result } = analyzeOne(
+    "remotely-save",
+    "C:\\Users\\Microsoft\\OneDrive\\notes.md\n400 Bad Request"
+  );
+  assert.equal(
+    result.matches.filter((m) => m.ruleId === "RS-03").length,
+    0,
+    "a bare mention of Microsoft must not trigger the Graph rule"
+  );
 });
 
 test("every rule signature fires on its real-world sample", () => {

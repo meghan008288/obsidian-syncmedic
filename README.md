@@ -136,12 +136,12 @@ The plugin ships through three channels, in increasing order of convenience:
 | Channel | How a user installs it | What it needs | Available now |
 | --- | --- | --- | --- |
 | **Manual** | Download the zip and unpack it into the vault | One zip | ✅ Ready |
-| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.8`) |
+| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.9`) |
 | **Official community directory** | Search "SyncMedic" in the directory and hit install | A public repository + an approved listing | ✅ Live (<https://community.obsidian.md/plugins/syncmedic>) |
 
 ### Channel 1: manual install
 
-Download `syncmedic-0.1.8.zip` and unpack it into your vault:
+Download `syncmedic-0.1.9.zip` and unpack it into your vault:
 
 ```
 <your vault>/.obsidian/plugins/syncmedic/
@@ -213,12 +213,12 @@ The full manual is in [`RELEASE.md`](./RELEASE.md). The shortest path:
 
 ```bash
 python scripts/release.py configure --github your-github-username  # set the author info
-python scripts/release.py check --tag 0.1.8                        # pre-release checks
+python scripts/release.py check --tag 0.1.9                        # pre-release checks
 python scripts/release.py package                                  # build dist/
 python scripts/release.py entry --repo your-username/obsidian-syncmedic  # the listing line
 ```
 
-Once the `0.1.8` tag is pushed, GitHub Actions runs the tests, builds and
+Once the `0.1.9` tag is pushed, GitHub Actions runs the tests, builds and
 publishes the release by itself.
 
 ---

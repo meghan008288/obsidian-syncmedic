@@ -133,7 +133,10 @@ export const RULES: RuleDefinition[] = [
     origin: "issue",
     groups: [
       [/@microsoft\.graph\.conflictBehavior/i, /400 Bad Request/i],
-      [/onedrive/i, /graph/i, /microsoft/i],
+      // The context has to name the Graph API. The bare words "onedrive",
+      // "graph" and "microsoft" matched almost every log that mentioned
+      // Microsoft at all, which made this rule fire on unrelated failures.
+      [/graph\.microsoft\.com/i, /Microsoft Graph/i, /Graph API/i],
     ],
     fixes: [
       "Upgrade Remotely Save: 0.5.25 reports HTTP 400 when connecting to OneDrive on a newer Obsidian (issue #1170)",
@@ -151,8 +154,11 @@ export const RULES: RuleDefinition[] = [
     origin: "source",
     groups: [
       [
-        /\b405\b/,
-        /Method Not Allowed/i,
+        // The WebDAV library prints "Invalid response: 405 Method not
+        // allowed". The bare number used to be enough to fire this rule, so
+        // any log with a 405 in it (a port, a byte count, a timestamp)
+        // counted as a WebDAV failure.
+        /405 Method not allowed/i,
         /we fail to write file partially for nextcloud or apache or sabre\/dav/i,
       ],
     ],
