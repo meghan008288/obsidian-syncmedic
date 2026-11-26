@@ -11,8 +11,11 @@ import {
 /**
  * Every sample below is either
  *   (a) copied verbatim from an open GitHub issue of the plugin, or
- *   (b) a string literal that exists in the plugin's shipping source.
- * Nothing here was invented.
+ *   (b) a string literal that the plugin's shipping code really prints.
+ *
+ * "Really prints" means the text is in the code that runs, not in a line
+ * that was commented out. A commented-out console.debug never reaches a
+ * user's log, so a rule built on it can never fire.
  */
 const CASES: {
   ruleId: string;
@@ -81,7 +84,37 @@ const CASES: {
   {
     ruleId: "RS-09",
     pluginId: "remotely-save",
-    sample: "main: receiving error in decryptNameByCallingWorker",
+    sample: "plugin:remotely-save:234 Error: cannot encrypt name=notes/todo.md",
+  },
+  {
+    ruleId: "RS-09",
+    pluginId: "remotely-save",
+    sample: "Error: cannot encrypt content",
+  },
+  {
+    ruleId: "RS-09",
+    pluginId: "remotely-save",
+    sample: "Error: unknown outputName after encryptNameByCallingWorker",
+  },
+  {
+    ruleId: "RS-09",
+    pluginId: "remotely-save",
+    sample: "Error: unknown outputContent after encryptContentByCallingWorker",
+  },
+  {
+    ruleId: "RS-09",
+    pluginId: "remotely-save",
+    sample: "Error: error after prepareByCallingWorker",
+  },
+  {
+    ruleId: "RS-09",
+    pluginId: "remotely-save",
+    sample: "Error: cannot decrypt name=notes/todo.md",
+  },
+  {
+    ruleId: "RS-09",
+    pluginId: "remotely-save",
+    sample: "Error: cannot decrypt content",
   },
   {
     ruleId: "RS-10",
@@ -268,7 +301,7 @@ test("evidence is capped so a runaway log cannot flood the report", () => {
 test("results are ordered by severity, critical first", () => {
   const text = [
     "check connect: delete file",
-    "main: receiving error in decryptNameByCallingWorker",
+    "Error: unknown outputName after encryptNameByCallingWorker",
     "plugin:remotely-save:234 Error: Request failed, status 429",
     "plugin:remotely-save:234 Error: Request failed, status 403",
   ].join("\n");

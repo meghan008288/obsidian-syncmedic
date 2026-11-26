@@ -93,14 +93,23 @@ function canonical(text: string): string {
     .toLowerCase();
 }
 
+const fetchCache = new Map<string, HttpResult>();
+
 function fetchUpstream(url: string, accept = "text/plain"): HttpResult {
-  return fetchText(url, {
+  // Several rules can be pinned to the same file or the same issue, so the
+  // answer is kept instead of asking GitHub for it again.
+  const key = `${accept} ${url}`;
+  const cached = fetchCache.get(key);
+  if (cached) return cached;
+  const res = fetchText(url, {
     proxy: PROXY,
     token: token(),
     accept,
     maxTime: MAX_TIME,
     retries: RETRIES,
   });
+  fetchCache.set(key, res);
+  return res;
 }
 
 function fetchJson(url: string): any {
@@ -113,14 +122,27 @@ function fetchJson(url: string): any {
   }
 }
 
-interface Outcome {
-  ruleId: string;
+interface AnchorOutcome {
   anchor: RuleAnchor;
   state: "ok" | "drift" | "legacy" | "skipped" | "error";
   detail: string;
 }
 
-function checkSource(anchor: RuleAnchor): Outcome {
+interface RuleOutcome {
+  ruleId: string;
+  anchors: AnchorOutcome[];
+  /**
+   * "ok"       every fingerprint of the rule is still where it was pinned.
+   * "partial"  some fingerprints moved, but the rule can still fire.
+   * "drift"    every fingerprint of the rule is gone: the rule is dead.
+   * "legacy"   the upstream stopped emitting the message on purpose.
+   * "error"    the upstream could not be read, so nothing was learned.
+   * "skipped"  there was nothing to read (offline without a local copy).
+   */
+  state: "ok" | "partial" | "drift" | "legacy" | "error" | "skipped";
+}
+
+function checkSource(anchor: RuleAnchor): AnchorOutcome {
   const project = UPSTREAM_PROJECTS[anchor.project];
   const literal = canonical(anchor.literal);
   let text: string | null = null;
@@ -129,7 +151,7 @@ function checkSource(anchor: RuleAnchor): Outcome {
   if (OFFLINE) {
     const local = join(LOCAL_SRC, anchor.project, anchor.target);
     if (!existsSync(local)) {
-      return { ruleId: "", anchor, state: "skipped", detail: `no local copy at ${local}` };
+      return { anchor, state: "skipped", detail: `no local copy at ${local}` };
     }
     text = readFileSync(local, "utf-8");
     where = `local ${anchor.project}/${anchor.target}`;
@@ -139,14 +161,12 @@ function checkSource(anchor: RuleAnchor): Outcome {
     if (!res.ok) {
       if (res.status === 404) {
         return {
-          ruleId: "",
           anchor,
           state: anchor.status === "legacy" ? "legacy" : "drift",
           detail: `${anchor.target} is no longer in the upstream repository (HTTP 404)`,
         };
       }
       return {
-        ruleId: "",
         anchor,
         state: "error",
         detail: `could not read ${url} (HTTP ${res.status || "no answer"})`,
@@ -158,29 +178,27 @@ function checkSource(anchor: RuleAnchor): Outcome {
   if (canonical(text).includes(literal)) {
     if (anchor.status === "legacy") {
       return {
-        ruleId: "",
         anchor,
         state: "legacy",
         detail: `still in ${where}, but the upstream stopped emitting it`,
       };
     }
-    return { ruleId: "", anchor, state: "ok", detail: where };
+    return { anchor, state: "ok", detail: where };
   }
   return {
-    ruleId: "",
     anchor,
     state: anchor.status === "legacy" ? "legacy" : "drift",
     detail: `"${anchor.literal}" is no longer in ${where}`,
   };
 }
 
-function checkIssue(anchor: RuleAnchor): Outcome {
+function checkIssue(anchor: RuleAnchor): AnchorOutcome {
   const project = UPSTREAM_PROJECTS[anchor.project];
   const literal = canonical(anchor.literal);
   const where = `${project.repo}#${anchor.target}`;
 
   if (OFFLINE) {
-    return { ruleId: "", anchor, state: "skipped", detail: `${where} (offline)` };
+    return { anchor, state: "skipped", detail: `${where} (offline)` };
   }
 
   const issueRes = fetchUpstream(
@@ -190,14 +208,12 @@ function checkIssue(anchor: RuleAnchor): Outcome {
   if (!issueRes.ok) {
     if (issueRes.status === 404) {
       return {
-        ruleId: "",
         anchor,
         state: anchor.status === "legacy" ? "legacy" : "drift",
         detail: `${where} no longer exists upstream (HTTP 404)`,
       };
     }
     return {
-      ruleId: "",
       anchor,
       state: "error",
       detail: `could not read ${where} (HTTP ${issueRes.status || "no answer"})`,
@@ -212,7 +228,6 @@ function checkIssue(anchor: RuleAnchor): Outcome {
     // The quoted text usually sits in a comment. Without the comments a
     // missing fingerprint would look like a drift that never happened.
     return {
-      ruleId: "",
       anchor,
       state: "error",
       detail: `could not read the comments of ${where} (HTTP ${commentsRes.status || "no answer"})`,
@@ -224,14 +239,13 @@ function checkIssue(anchor: RuleAnchor): Outcome {
     const issue = JSON.parse(issueRes.body);
     parts.push(issue.title ?? "", issue.body ?? "");
   } catch {
-    return { ruleId: "", anchor, state: "error", detail: `could not parse ${where}` };
+    return { anchor, state: "error", detail: `could not parse ${where}` };
   }
   try {
     const comments = JSON.parse(commentsRes.body);
     for (const c of Array.isArray(comments) ? comments : []) parts.push(c?.body ?? "");
   } catch {
     return {
-      ruleId: "",
       anchor,
       state: "error",
       detail: `could not parse the comments of ${where}`,
@@ -242,16 +256,14 @@ function checkIssue(anchor: RuleAnchor): Outcome {
   if (canonical(text).includes(literal)) {
     if (anchor.status === "legacy") {
       return {
-        ruleId: "",
         anchor,
         state: "legacy",
         detail: `still in ${where}, but the upstream stopped emitting it`,
       };
     }
-    return { ruleId: "", anchor, state: "ok", detail: where };
+    return { anchor, state: "ok", detail: where };
   }
   return {
-    ruleId: "",
     anchor,
     state: anchor.status === "legacy" ? "legacy" : "drift",
     detail: `"${anchor.literal}" is no longer in ${where}`,
@@ -267,24 +279,47 @@ function latestRelease(project: string): string {
   return `${rel.tag_name} (${date})`;
 }
 
-const outcomes: Outcome[] = [];
-for (const rule of RULES) {
-  const anchor = RULE_ANCHORS[rule.id];
-  if (!anchor) continue;
-  const outcome =
-    anchor.kind === "source" ? checkSource(anchor) : checkIssue(anchor);
-  outcome.ruleId = rule.id;
-  outcomes.push(outcome);
+/**
+ * Turns the outcome of every anchor of a rule into one verdict for the rule.
+ * A rule with several fingerprints stays alive as long as one of them is
+ * still there, so only a rule whose fingerprints are all gone counts as
+ * drifted.
+ */
+function rollUp(ruleId: string, anchors: AnchorOutcome[]): RuleOutcome {
+  const active = anchors.filter((a) => a.anchor.status === "active");
+  const alive = active.filter((a) => a.state === "ok");
+  const moved = active.filter((a) => a.state === "drift");
+  const unreachable = anchors.filter((a) => a.state === "error");
+
+  let state: RuleOutcome["state"];
+  if (moved.length > 0 && alive.length > 0) state = "partial";
+  else if (moved.length > 0) state = "drift";
+  else if (alive.length > 0) state = "ok";
+  else if (unreachable.length > 0) state = "error";
+  else if (active.length === 0) state = "legacy";
+  else state = "skipped";
+  return { ruleId, anchors, state };
 }
 
-const ok = outcomes.filter((o) => o.state === "ok");
-const drifted = outcomes.filter((o) => o.state === "drift");
-const legacy = outcomes.filter((o) => o.state === "legacy");
-const errors = outcomes.filter((o) => o.state === "error");
-const skipped = outcomes.filter((o) => o.state === "skipped");
-// How many fingerprints were actually looked at. Zero means nothing was
-// checked, which must not be reported as "nothing is wrong".
-const checked = ok.length + legacy.length + drifted.length;
+const rules: RuleOutcome[] = [];
+for (const rule of RULES) {
+  const anchors = RULE_ANCHORS[rule.id];
+  if (!anchors || anchors.length === 0) continue;
+  const outcomes = anchors.map((anchor) =>
+    anchor.kind === "source" ? checkSource(anchor) : checkIssue(anchor)
+  );
+  rules.push(rollUp(rule.id, outcomes));
+}
+
+const ok = rules.filter((r) => r.state === "ok");
+const partial = rules.filter((r) => r.state === "partial");
+const drifted = rules.filter((r) => r.state === "drift");
+const legacy = rules.filter((r) => r.state === "legacy");
+const errors = rules.filter((r) => r.state === "error");
+const skipped = rules.filter((r) => r.state === "skipped");
+// How many rules were actually looked at. Zero means nothing was checked,
+// which must not be reported as "nothing is wrong".
+const checked = ok.length + partial.length + drifted.length + legacy.length;
 
 const lines: string[] = [];
 lines.push("SyncMedic fingerprint drift check");
@@ -298,24 +333,39 @@ for (const project of Object.keys(UPSTREAM_PROJECTS)) {
   );
 }
 lines.push("");
-for (const o of outcomes) {
+for (const rule of rules) {
   const mark =
-    o.state === "ok"
+    rule.state === "ok"
       ? "ok     "
-      : o.state === "drift"
-        ? "DRIFT  "
-        : o.state === "legacy"
-          ? "legacy "
-          : o.state === "skipped"
-            ? "skipped"
-            : "error  ";
-  lines.push(
-    `  ${mark} ${o.ruleId}  ${o.anchor.kind.padEnd(5)}  ${o.detail}`,
-  );
+      : rule.state === "partial"
+        ? "partial"
+        : rule.state === "drift"
+          ? "DRIFT  "
+          : rule.state === "legacy"
+            ? "legacy "
+            : rule.state === "skipped"
+              ? "skipped"
+              : "error  ";
+  lines.push(`  ${mark} ${rule.ruleId}`);
+  for (const anchor of rule.anchors) {
+    const anchorMark =
+      anchor.state === "ok"
+        ? "ok     "
+        : anchor.state === "drift"
+          ? "DRIFT  "
+          : anchor.state === "legacy"
+            ? "legacy "
+            : anchor.state === "skipped"
+              ? "skipped"
+              : "error  ";
+    lines.push(
+      `           ${anchorMark} ${anchor.anchor.kind.padEnd(5)} ${anchor.detail}`,
+    );
+  }
 }
 lines.push("");
 lines.push(
-  `${ok.length} ok, ${legacy.length} legacy, ${drifted.length} drifted, ${errors.length} unreachable, ${skipped.length} skipped`,
+  `${ok.length} ok, ${partial.length} partial, ${legacy.length} legacy, ${drifted.length} drifted, ${errors.length} unreachable, ${skipped.length} skipped`,
 );
 // The workflow reads this line to tell a real drift apart from a machine
 // that could not reach the upstream projects.

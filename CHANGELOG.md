@@ -1,15 +1,19 @@
 # Changelog
 
-## Unreleased
+## 0.1.7 - 2026-11-26
 
 ### English
 
+- Fixed the end-to-end encryption rule. It matched "main: receiving error in ...", a string that only ever existed as a commented out `console.debug` call in the upstream source, so the rule could never fire on a real log. It now matches the seven strings that `remotely-save` 0.5.25 really prints, and each of them is pinned to the upstream file it comes from.
+- A rule can now be pinned to several upstream places at once. The checker reports a rule as drifted only when every one of its fingerprints is gone; a rule that lost some of them is reported but does not fail the job.
 - Fixed the drift check on Linux. It called `curl.exe`, which only exists on Windows, so on the scheduled runner every request failed and a real drift could never have been reported. It now picks the binary that fits the platform, reads the HTTP status back, and tells a network failure apart from a fingerprint that really moved.
 - A broken network no longer files a false "Fingerprint drift detected" issue. The check now exits with 1 when a fingerprint moved and with 2 when the upstream could not be reached, and only the first one opens an issue.
 - Retaken the marketplace screenshots. The old ones showed version 0.1.5, one of them showed a desktop with a private conversation on it instead of the plugin, and the Obsidian interface was in Chinese.
 
 ### 中文
 
+- 修好了端到端加密这条规则。它匹配的是「main: receiving error in ...」,而这个串在上游只是一行被注释掉的 `console.debug`,所以规则从来不可能在真实日志上命中。现在它匹配 remotely-save 0.5.25 真正会打印的 7 个串,每一个都锚定到它出处的那份上游文件。
+- 一条规则现在可以同时锚定多个上游位置。检测器只有在一条规则的指纹**全部**消失时才判定它漂移;只丢了一部分的会被记录下来,但不会让任务失败。
 - 修好了漂移检测在 Linux 上跑不起来的问题:它写死了 `curl.exe`,这个文件只有 Windows 有,定时任务每次请求都会失败,真漂移反而报不出来。现在会按平台选可执行文件,会把 HTTP 状态码读回来,也能区分「网络不通」和「指纹真的没了」。
 - 网络故障不会再误开一个假的「Fingerprint drift detected」issue:真的漂移退出码是 1,连不上上游退出码是 2,只有前者才开 issue。
 - 重拍了市场截图:旧图里还写着 0.1.5,其中一张拍到的是带私人对话的桌面而不是插件本身,而且 Obsidian 界面是中文。

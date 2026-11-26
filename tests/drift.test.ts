@@ -39,13 +39,23 @@ function runCheck(files: Record<string, string>): {
   };
 }
 
-const RS_04 = RULE_ANCHORS["RS-04"];
-const RS_09 = RULE_ANCHORS["RS-09"];
+/**
+ * Builds the fake upstream files a rule needs, with every literal it is
+ * pinned to really written into them.
+ */
+function upstreamWith(ruleId: string, except: string[] = []): Record<string, string> {
+  const files: Record<string, string> = {};
+  for (const anchor of RULE_ANCHORS[ruleId] ?? []) {
+    if (anchor.kind !== "source") continue;
+    if (except.includes(anchor.literal)) continue;
+    const name = `${anchor.project}/${anchor.target}`;
+    files[name] = `${files[name] ?? ""}// ${anchor.literal}\n`;
+  }
+  return files;
+}
 
 test("a fingerprint that is still upstream passes the check", () => {
-  const { code, report } = runCheck({
-    [`remotely-save/${RS_04.target}`]: `throw new Error("${RS_04.literal}");\n`,
-  });
+  const { code, report } = runCheck(upstreamWith("RS-04"));
   assert.equal(code, 0, report);
   assert.match(report, /RESULT: no-drift/);
   assert.match(report, /1 ok/);
@@ -53,20 +63,29 @@ test("a fingerprint that is still upstream passes the check", () => {
 
 test("an upstream rewrite is reported as a drift and fails the check", () => {
   const { code, report } = runCheck({
-    [`remotely-save/${RS_04.target}`]: `throw new Error("the file could not be written");\n`,
+    ["remotely-save/src/fsWebdav.ts"]: `throw new Error("the file could not be written");\n`,
   });
   assert.equal(code, 1, report);
   assert.match(report, /RESULT: drift/);
   assert.match(report, /DRIFT\s+RS-04/);
 });
 
-test("a retired fingerprint is reported but does not fail the check", () => {
-  const { code, report } = runCheck({
-    [`remotely-save/${RS_09.target}`]: `// console.debug("main: ${RS_09.literal} ...");\n`,
-  });
+test("a rule that lost only some of its fingerprints is reported but does not fail", () => {
+  const files = upstreamWith("RS-09", ["error after prepareByCallingWorker"]);
+  const { code, report } = runCheck(files);
   assert.equal(code, 0, report);
-  assert.match(report, /legacy\s+RS-09/);
+  assert.match(report, /partial\s+RS-09/);
   assert.match(report, /RESULT: no-drift/);
+});
+
+test("a rule whose fingerprints are all gone fails the check", () => {
+  const files = upstreamWith("RS-09");
+  for (const name of Object.keys(files)) {
+    files[name] = "// the upstream rewrote this\n";
+  }
+  const { code, report } = runCheck(files);
+  assert.equal(code, 1, report);
+  assert.match(report, /DRIFT\s+RS-09/);
 });
 
 test("a check that could not look at anything says so instead of passing", () => {

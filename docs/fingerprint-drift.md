@@ -14,7 +14,7 @@ pinned to the exact upstream place it came from.
 
 ## How it works
 
-`src/rule-anchors.ts` holds one anchor per rule:
+`src/rule-anchors.ts` holds the anchors of every rule:
 
 ```ts
 export interface RuleAnchor {
@@ -28,6 +28,8 @@ export interface RuleAnchor {
   reason?: string;
   status: "active" | "legacy";
 }
+
+export const RULE_ANCHORS: Record<string, RuleAnchor[]> = { /* ... */ };
 ```
 
 - `kind: "source"` — the message is produced by the upstream plugin's own
@@ -40,6 +42,19 @@ export interface RuleAnchor {
 - `status: "legacy"` — the upstream stopped emitting the message (the code is
   commented out now), but the rule still matches logs from older versions.
   These are reported, not failed, so the rule can be retired on purpose.
+
+A rule can have more than one anchor. That is what a rule needs when its
+fingerprints come from several places in the upstream project: every
+fingerprint then carries its own pin. The checker ends up with one verdict per
+rule:
+
+| Verdict | Meaning | Fails the job |
+| --- | --- | --- |
+| `ok` | every fingerprint is still where it was pinned | no |
+| `partial` | some fingerprints moved, but the rule can still fire | no |
+| `drift` | every fingerprint of the rule is gone, the rule is dead | yes |
+| `legacy` | the upstream stopped emitting the message on purpose | no |
+| `error` | the upstream could not be read, so nothing was learned | yes, as unverifiable |
 
 Both sides of the comparison are canonicalised the same way: template holes
 (`${...}`) and number runs collapse to `#`, so the source literal
@@ -92,8 +107,27 @@ issue, so a broken network never looks like an upstream change.
 4. Bump `UPSTREAM_PROJECTS[...].verifiedAt` to the release you verified
    against.
 
-## Known legacy rule
+## A fingerprint that never existed
 
-`RS-09` (the end-to-end encryption worker) is marked `legacy`: the upstream
-commented those `console.debug` calls out, so `remotely-save` 0.5.25 no longer
-prints them. The rule still matches logs written by older versions.
+`RS-09` (the end-to-end encryption worker) used to be pinned to
+`main: receiving error in ...`. Those lines only ever existed as commented out
+`console.debug` calls in `src/encryptRClone.ts`: the file was created that way
+in 2024 (upstream commit `e283efc8`, "new encryption"), and the string is in
+none of the shipped releases. The rule could therefore never fire, and the
+drift checker reported it as `legacy` instead of repairing it.
+
+A fingerprint only counts if the upstream code really prints it. The rule now
+matches the text that `remotely-save` 0.5.25 really produces:
+
+| Fingerprint | Where it comes from |
+| --- | --- |
+| `cannot encrypt name=` | `src/fsEncrypt.ts`, thrown when the name cannot be encrypted |
+| `cannot encrypt content` | `src/fsEncrypt.ts`, thrown when the content cannot be encrypted |
+| `cannot decrypt name=` | `src/fsEncrypt.ts`, thrown when the name cannot be decrypted |
+| `cannot decrypt content` | `src/fsEncrypt.ts`, thrown when the content cannot be decrypted |
+| `unknown outputName after encryptNameByCallingWorker` | `src/encryptRClone.ts`, the encryption worker rejection |
+| `unknown outputContent after encryptContentByCallingWorker` | `src/encryptRClone.ts`, the encryption worker rejection |
+| `error after prepareByCallingWorker` | `src/encryptRClone.ts`, the encryption worker rejection |
+
+Each of them carries its own anchor, so the checker now knows when one of them
+moves.

@@ -240,20 +240,26 @@ export const RULES: RuleDefinition[] = [
     scope: "remotely-save",
     category: "End-to-end encryption",
     origin: "source",
+    // Every one of these is text the upstream 0.5.25 release really prints.
+    // The first four are thrown by src/fsEncrypt.ts, the last three are the
+    // rejections of the encryption worker in src/encryptRClone.ts.
     groups: [
       [
-        /main: receiving error in prepare/i,
-        /main: receiving error in encryptNameByCallingWorker/i,
-        /main: receiving error in decryptNameByCallingWorker/i,
-        /main: receiving error in encryptContentByCallingWorker/i,
+        /cannot encrypt name=/i,
+        /cannot encrypt content/i,
+        /cannot decrypt name=/i,
+        /cannot decrypt content/i,
+        /unknown outputName after encryptNameByCallingWorker/i,
+        /unknown outputContent after encryptContentByCallingWorker/i,
+        /error after prepareByCallingWorker/i,
       ],
     ],
     fixes: [
-      "The encryption step failed and the file was not uploaded. Check whether the “use end-to-end encryption” and “encrypt filename” settings were just changed",
-      "After changing the encryption settings the old remote files cannot be decrypted, they have to be synced once more with the old password",
-      "The scenario in issue #1065 is old and new files overwriting each other after a version switch, so make sure the remote side runs the same encryption parameters",
+      "The encryption step failed, so the file was not uploaded. Check whether the password or the encryption method was just changed",
+      "If files were synced before the password was set, they have to be synced again: back up the vault, empty the synced folder in the cloud, then sync once more with the password set (upstream issue #843)",
+      "Make sure the remote side uses the same encryption parameters as the local side, otherwise the file names cannot be encrypted or decrypted",
     ],
-    issues: [{ repo: RS, number: 1065, relation: "related" }],
+    issues: [{ repo: RS, number: 843, relation: "related" }],
   },
   {
     id: "RS-10",

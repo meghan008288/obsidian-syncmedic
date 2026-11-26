@@ -14,7 +14,7 @@ import tempfile
 import urllib.request
 
 REPO = "meghan008288/obsidian-syncmedic"
-TAG = "0.1.6"
+TAG = "0.1.7"
 GH = os.path.join(
     os.environ.get("LOCALAPPDATA", ""), "Programs", "GitHub CLI", "bin", "gh.exe"
 )

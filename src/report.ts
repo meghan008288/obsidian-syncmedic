@@ -70,7 +70,7 @@ export function renderMarkdownReport(input: ReportInput): string {
   lines.push("");
   lines.push(
     `> ${renderSummary(input)}  ·  Generated ${safe(input.generatedAt ?? now())}  ·  Plugin version ${safe(
-      input.pluginVersion ?? "0.1.6"
+      input.pluginVersion ?? "0.1.7"
     )}`
   );
   lines.push("");
@@ -183,7 +183,7 @@ export function renderJsonReport(input: ReportInput): string {
   const { analysis } = input;
   const payload = {
     tool: "SyncMedic",
-    pluginVersion: input.pluginVersion ?? "0.1.6",
+    pluginVersion: input.pluginVersion ?? "0.1.7",
     generatedAt: input.generatedAt ?? now(),
     vaultName: input.vaultName ? safe(input.vaultName) : undefined,
     scanned: {

@@ -109,7 +109,7 @@ source code of the plugin.
 | `RS-06` | Remotely Save | Warning | Network hiccup caused ERR_NETWORK_IO_SUSPENDED | From an upstream issue | [#732](https://github.com/remotely-save/remotely-save/issues/732) |
 | `RS-07` | Remotely Save | Warning | Deleting or moving a remote file failed | Confirmed in the source | [#991](https://github.com/remotely-save/remotely-save/issues/991) |
 | `RS-08` | Remotely Save | Warning | The local sync database is locked or was deleted | Confirmed in the source | [#1151](https://github.com/remotely-save/remotely-save/issues/1151) |
-| `RS-09` | Remotely Save | Critical | The end-to-end encryption worker failed to encrypt or decrypt the file | Confirmed in the source | [#1065](https://github.com/remotely-save/remotely-save/issues/1065) |
+| `RS-09` | Remotely Save | Critical | The end-to-end encryption worker failed to encrypt or decrypt the file | Confirmed in the source | [#843](https://github.com/remotely-save/remotely-save/issues/843) |
 | `RS-10` | Remotely Save | Critical | Refreshing the OneDrive token hangs, the connection stays on "Connecting to OneDrive" | From an upstream issue | [#920](https://github.com/remotely-save/remotely-save/issues/920) |
 | `RS-11` | Remotely Save | Hint | The remote connection self-check did not pass | Confirmed in the source | [#840](https://github.com/remotely-save/remotely-save/issues/840) |
 | `LS-01` | LiveSync | Critical | The CORS preflight failed: the server does not allow OPTIONS requests | From an upstream issue | [#588](https://github.com/vrtmrz/obsidian-livesync/issues/588) |
@@ -136,12 +136,12 @@ The plugin ships through three channels, in increasing order of convenience:
 | Channel | How a user installs it | What it needs | Available now |
 | --- | --- | --- | --- |
 | **Manual** | Download the zip and unpack it into the vault | One zip | ✅ Ready |
-| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.6`) |
+| **GitHub Release + BRAT** | Install BRAT, paste the repository URL | A public repository + a release | ✅ Ready (release `0.1.7`) |
 | **Official community directory** | Search "SyncMedic" in the directory and hit install | A public repository + an approved listing | ✅ Live (<https://community.obsidian.md/plugins/syncmedic>) |
 
 ### Channel 1: manual install
 
-Download `syncmedic-0.1.6.zip` and unpack it into your vault:
+Download `syncmedic-0.1.7.zip` and unpack it into your vault:
 
 ```
 <your vault>/.obsidian/plugins/syncmedic/
@@ -213,12 +213,12 @@ The full manual is in [`RELEASE.md`](./RELEASE.md). The shortest path:
 
 ```bash
 python scripts/release.py configure --github your-github-username  # set the author info
-python scripts/release.py check --tag 0.1.6                        # pre-release checks
+python scripts/release.py check --tag 0.1.7                        # pre-release checks
 python scripts/release.py package                                  # build dist/
 python scripts/release.py entry --repo your-username/obsidian-syncmedic  # the listing line
 ```
 
-Once the `0.1.6` tag is pushed, GitHub Actions runs the tests, builds and
+Once the `0.1.7` tag is pushed, GitHub Actions runs the tests, builds and
 publishes the release by itself.
 
 ---
